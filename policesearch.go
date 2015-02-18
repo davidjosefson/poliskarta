@@ -1,139 +1,154 @@
 package main
 
-import (
-	"encoding/json"
-	"encoding/xml"
-	"fmt"
-	"html/template"
-	"log"
-	"net/http"
-)
+import "github.com/go-martini/martini"
 
 func main() {
-	http.HandleFunc("/skane/", skane)
-	http.HandleFunc("/skane/0/", skaneSingle)
-	http.HandleFunc("/skane/1/", skaneSingle)
-	http.HandleFunc("/skane/2/", skaneSingle)
+	m := martini.Classic()
 
-	http.HandleFunc("/stockholm/", stockholm)
-	http.HandleFunc("/stockholm/0/", stockholmSingle)
-	http.HandleFunc("/stockholm/1/", stockholmSingle)
+	m.Group("/skane", func(r martini.Router) {
+		r.Get("/", test)
+		r.Get("/wiie", wiie)
+		// r.Get("/:id", GetBooks)
+	})
 
-	//http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))) //To find css-files in the css-folder
-	http.ListenAndServe(":9090", nil)
+	m.Get("/skane/", func() string {
+		return "skanesmmmsadfadsfasdf"
+	})
+
+	m.Run()
+
+	// http.HandleFunc("/skane/", skane)
+	// http.HandleFunc("/skane/0/", skaneSingle)
+	// http.HandleFunc("/skane/1/", skaneSingle)
+	// http.HandleFunc("/skane/2/", skaneSingle)
+
+	// http.HandleFunc("/stockholm/", stockholm)
+	// http.HandleFunc("/stockholm/0/", stockholmSingle)
+	// http.HandleFunc("/stockholm/1/", stockholmSingle)
+
+	// //http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))) //To find css-files in the css-folder
+	// http.ListenAndServe(":9090", nil)
 }
 
-func skane(wr http.ResponseWriter, re *http.Request) {
-	/*
-		1. Fixa så att man kan anropa EN metod för alla län, en array med alla unika urls till polisens
-		2. Hämta polis-RSS och mappa till struct för Länet
-		3. Fixa en metod som kan ta reda på platsen namn (stad, by osv) för att söka i Google Maps
-		4. Gör ett anrop till Google Maps för varje platsnamn och få tillbaka koordinater/platsnamn
-		5. Returnera en lång lista med händelser och platskoordinater
-
-		6. Ifall man går in på skane/1/ ska enbart PoliceEvent[0] för det länet returneras
-	*/
-
-	policeresponse, _ := http.Get("https://polisen.se/Gotlands_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss")
-
-	defer policeresponse.Body.Close()
-
-	var channel Channel
-
-	xml.NewDecoder(policeresponse.Body).Decode(&channel)
-
-	fmt.Println(channel.Items)
+func test() string {
+	return "groups skane"
 }
 
-type Foobar struct {
-	PoliceEvents []PoliceEvent `xml:"channel>item"`
+func wiie() string {
+	return "wiee skane"
 }
 
-type PoliceEvent struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	Description string `xml:"description"`
-	PubDate     string `xml:"pubDate"`
-}
+// func skane(wr http.ResponseWriter, re *http.Request) {
+// 	/*
+// 		1. Fixa så att man kan anropa EN metod för alla län, en array med alla unika urls till polisens
+// 		2. Hämta polis-RSS och mappa till struct för Länet
+// 		3. Fixa en metod som kan ta reda på platsen namn (stad, by osv) för att söka i Google Maps
+// 		4. Gör ett anrop till Google Maps för varje platsnamn och få tillbaka koordinater/platsnamn
+// 		5. Returnera en lång lista med händelser och platskoordinater
 
-func moviesearch(wr http.ResponseWriter, re *http.Request) {
-	//1. lookup omdb-rate (first result only)
-	//2. lookup rotten-rate (first result only)
-	//3. create html-page
-	//4. write html-page with wr
+// 		6. Ifall man går in på skane/1/ ska enbart PoliceEvent[0] för det länet returneras
+// 	*/
 
-	moviename := re.URL.Query().Get("name")
+// 	policeresponse, _ := http.Get("https://polisen.se/Gotlands_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss")
 
-	/*if moviename == "" {
-		wr.Write([]byte("Please enter a valid movie name"))
-		return
-	}*/
+// 	defer policeresponse.Body.Close()
 
-	omovie := omdbquery(moviename)
-	log.Printf("ImdbMovie: %s, score: %s", omovie.Movietitle, omovie.Imdbscore)
+// 	var channel Channel
 
-	rmovie := rottenquery(moviename)
-	log.Printf("RottenMovie-score: %d", rmovie.Movies[0].Ratings.Rottenscore)
+// 	xml.NewDecoder(policeresponse.Body).Decode(&channel)
 
-	combinedmoviedata := CombinedMovieData{omovie.Movietitle, omovie.Imdbscore, rmovie.Movies[0].Ratings.Rottenscore}
+// 	fmt.Println(channel.Items)
+// }
 
-	movietemplate, _ := template.ParseFiles("name.html")
-	movietemplate.Execute(wr, combinedmoviedata)
-	//template.Must(template.ParseFiles("name.html")).Execute(wr, combinedmoviedata)
+// type Foobar struct {
+// 	PoliceEvents []PoliceEvent `xml:"channel>item"`
+// }
 
-}
+// type PoliceEvent struct {
+// 	Title       string `xml:"title"`
+// 	Link        string `xml:"link"`
+// 	Description string `xml:"description"`
+// 	PubDate     string `xml:"pubDate"`
+// }
 
-func omdbquery(moviename string) OmdbMovie {
-	url := "http://www.omdbapi.com/?t=" + moviename + "&y&plot=short&r=json&tomatoes=true"
+// func moviesearch(wr http.ResponseWriter, re *http.Request) {
+// 	//1. lookup omdb-rate (first result only)
+// 	//2. lookup rotten-rate (first result only)
+// 	//3. create html-page
+// 	//4. write html-page with wr
 
-	omdbresponse, err := http.Get(url)
-	if err != nil {
-		log.Println("Error on http.Get: ", err)
-		return OmdbMovie{}
-	}
+// 	moviename := re.URL.Query().Get("name")
 
-	defer omdbresponse.Body.Close()
+// 	/*if moviename == "" {
+// 		wr.Write([]byte("Please enter a valid movie name"))
+// 		return
+// 	}*/
 
-	var omdbmovie OmdbMovie
+// 	omovie := omdbquery(moviename)
+// 	log.Printf("ImdbMovie: %s, score: %s", omovie.Movietitle, omovie.Imdbscore)
 
-	json.NewDecoder(omdbresponse.Body).Decode(&omdbmovie)
+// 	rmovie := rottenquery(moviename)
+// 	log.Printf("RottenMovie-score: %d", rmovie.Movies[0].Ratings.Rottenscore)
 
-	return omdbmovie
-}
+// 	combinedmoviedata := CombinedMovieData{omovie.Movietitle, omovie.Imdbscore, rmovie.Movies[0].Ratings.Rottenscore}
 
-func rottenquery(moviename string) RottenMovie {
-	url := "http://api.rottentomatoes.com/api/public/v1.0/movies.json?apikey=***REMOVED***&q=" + moviename
+// 	movietemplate, _ := template.ParseFiles("name.html")
+// 	movietemplate.Execute(wr, combinedmoviedata)
+// 	//template.Must(template.ParseFiles("name.html")).Execute(wr, combinedmoviedata)
 
-	rottenresponse, err := http.Get(url)
-	if err != nil {
-		log.Println("Error on http.Get: ", err)
-		return RottenMovie{}
-	}
+// }
 
-	defer rottenresponse.Body.Close()
+// func omdbquery(moviename string) OmdbMovie {
+// 	url := "http://www.omdbapi.com/?t=" + moviename + "&y&plot=short&r=json&tomatoes=true"
 
-	var rottenmovie RottenMovie
-	json.NewDecoder(rottenresponse.Body).Decode(&rottenmovie)
+// 	omdbresponse, err := http.Get(url)
+// 	if err != nil {
+// 		log.Println("Error on http.Get: ", err)
+// 		return OmdbMovie{}
+// 	}
 
-	return rottenmovie
-}
+// 	defer omdbresponse.Body.Close()
 
-type OmdbMovie struct {
-	Movietitle string `json:"Title"`
-	Imdbscore  string `json:"imdbRating"`
-}
+// 	var omdbmovie OmdbMovie
 
-type RottenMovie struct {
-	Movies []struct {
-		MovieTitle string `json:"title"`
-		Ratings    struct {
-			Rottenscore int `json:"critics_score"`
-		} `json:"ratings"`
-	} `json:"movies"`
-}
+// 	json.NewDecoder(omdbresponse.Body).Decode(&omdbmovie)
 
-type CombinedMovieData struct {
-	Movietitle  string
-	Imdbscore   string
-	Rottenscore int
-}
+// 	return omdbmovie
+// }
+
+// func rottenquery(moviename string) RottenMovie {
+// 	url := "http://api.rottentomatoes.com/api/public/v1.0/movies.json?apikey=***REMOVED***&q=" + moviename
+
+// 	rottenresponse, err := http.Get(url)
+// 	if err != nil {
+// 		log.Println("Error on http.Get: ", err)
+// 		return RottenMovie{}
+// 	}
+
+// 	defer rottenresponse.Body.Close()
+
+// 	var rottenmovie RottenMovie
+// 	json.NewDecoder(rottenresponse.Body).Decode(&rottenmovie)
+
+// 	return rottenmovie
+// }
+
+// type OmdbMovie struct {
+// 	Movietitle string `json:"Title"`
+// 	Imdbscore  string `json:"imdbRating"`
+// }
+
+// type RottenMovie struct {
+// 	Movies []struct {
+// 		MovieTitle string `json:"title"`
+// 		Ratings    struct {
+// 			Rottenscore int `json:"critics_score"`
+// 		} `json:"ratings"`
+// 	} `json:"movies"`
+// }
+
+// type CombinedMovieData struct {
+// 	Movietitle  string
+// 	Imdbscore   string
+// 	Rottenscore int
+// }
