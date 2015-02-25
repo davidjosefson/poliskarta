@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"poliskarta/helperfunctions"
 	"strings"
 )
 
 func main() {
 
-	arrayOfTitles := []string{"2015-02-15 11:08, Inbrott, Östra Göinge", "2015-01-20 10:28, Trafikolycka, Landskrona", "2015-02-15 00:49, Sammanfattning kväll, Norrbotten", "2015-02-15 00:49, samManfattning kväll, Norrbotten"}
+	arrayOfTitles := []string{"2015-02-15 11:08, Inbrott, Östra Göinge", "2015-01-20 10:28, Trafikolycka, Landskrona", "2015-02-15 00:49, Sammanfattning kväll, Norrbotten", "2015-02-24 20:21, Trafikolycka, singel, Helsingborg"}
 
 	for _, title := range arrayOfTitles {
 
@@ -49,11 +50,11 @@ func removeNonLocationInfoFromTitle(title string) []string {
 
 	titleWords := strings.Split(title, ",")
 
+	titleWords = helperfunctions.TrimSpacesFromArray(titleWords)
 	titleLocation := make([]string, 0)
 
 	for i := 1; i < len(titleWords); i++ {
-
-		if startsWithUppercase(titleWords[i]) {
+		if helperfunctions.StartsWithUppercase(titleWords[i]) {
 			for j := i; j < len(titleWords); j++ {
 				locationToAdd := strings.TrimSpace(titleWords[j])
 				titleLocation = append(titleLocation, locationToAdd)
@@ -70,11 +71,6 @@ func removeNonLocationInfoFromTitle(title string) []string {
 //Title Rule 3: Dont check for location if sammanfattning exists in title
 func checkForSammanfattning(title string) bool {
 	return strings.Contains(strings.ToLower(title), "sammanfattning")
-}
-
-//Helper func
-func startsWithUppercase(s string) bool {
-	return (string(s[0]) == strings.ToUpper(string(s[0])))
 }
 
 /*func main() {
