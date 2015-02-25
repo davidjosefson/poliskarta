@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"poliskarta/helperfunctions"
 	"strconv"
 	"strings"
@@ -11,28 +10,11 @@ var EuorpeRoads []string
 var arrayOfTitles []string
 var namesForPlacesToInclude []string
 
-func main() {
+//Rule 1:
+func Rule1(title string) []string {
 	fillEuropeRoads()
-	fillArrayOfTitles()
 	fillNamesForPlacesToInclude()
 
-	for _, title := range arrayOfTitles {
-
-		fmt.Println()
-		fmt.Println("-------------------------")
-
-		fmt.Print("Processing title: ")
-		fmt.Println(title)
-		result := rule1(title)
-		fmt.Println()
-		fmt.Print("Results: ", result)
-
-	}
-
-}
-
-//Rule 1:
-func rule1(title string) string {
 	descWords := strings.Split(title, " ")
 	trimmedDescWords := helperfunctions.TrimSpacesFromArray(descWords)
 
@@ -71,50 +53,15 @@ func rule1(title string) string {
 
 				//Nu får ordet läggas in (tror vi)
 				placeDescription = append(placeDescription, currentWord)
-				fmt.Println(placeDescription)
 			}
 
 		}
 	}
 
-	return "resultat"
+	return placeDescription
 }
 func fillEuropeRoads() {
 	EuorpeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E", "Lv"}
-}
-func fillArrayOfTitles() {
-	arrayOfTitles = []string{
-		"Rökutveckling, Blåregnsgatan.",
-		"Inbrott i bostad, Sösdala.",
-		"Personbilar i kollision på E6.",
-		"Bilbrand på Tians väg",
-		"Butiksrån, Norra Grängesbergsgatan.",
-		"Flera fordon i kollision på E22, Stavröd.",
-		"Två män gripna misstänkta för stöld, Hamnen Trelleborg",
-		"Inbrott i villa, Vellinge-Månstorp.",
-		"Rån mot apotek, Gösta Lundhs gata.",
-		"Lastbil välter, Inre ringvägen, i höjd med Sege industriområde.", //Hitta ord som innehåller "vägen"
-		"Två bilar krockar, korsningen Klörupsvägen och Havrejordsvägen.",
-		"Två personbilar i sidokollision, E22, Bäckaskog.",
-		"Personrån.",
-		"Stopp och kontroll av stulen bil, väg 111, Laröd.",
-		"Trafikolycka/rattfylleri, Vankivavägen, Hässleholm.",
-		"Trafifkolycka, Länsväg 769, mellan Skurup och Rydsgård.",
-		"Trafikolycka på Länsväg 1329, Norra Rörum.",
-		"Två bilar krockar, korsningen Skolgatan och Andra Avenyn.",
-		"Person påkörd, Storgatan. Senare ändrad till sjukdom/olycksfall.",
-		"Inbrott i företagslokal, Fosie industriområde.", //Ta bara fosie
-		"Två personbilar i kollision, Hjalmar Brantings väg.",
-		"Brand i sopstation på Ramels väg i Malmö",
-		"Misshandel, Anna Lindhs plats.",
-		"Misshandel på Onsala danska väg i Gottskär. Detta var inte bra.",
-		"Något hände på Lv 985, Hakarp, Huskvarna.",
-		"Georg Lückligs väg och larm om ungdomar som bråkar. På platsen.",
-		"personbil-minibuss på vägen mellan Hinneryd-Traryd. I minibussen",
-		"Per Högströmsgatan",
-		"Singelolycka, väg 1560, Tomelillabygden.",
-		"Skit hände på Trumvägen område Hamptjärnsmoran Boden är en åra",
-	}
 }
 
 func fillNamesForPlacesToInclude() {
