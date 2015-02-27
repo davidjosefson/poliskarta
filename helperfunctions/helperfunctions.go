@@ -6,11 +6,14 @@ import (
 	"unicode"
 )
 
-func TrimSpacesFromArray(title []string) []string {
-	for i := 0; i < len(title); i++ {
-		title[i] = strings.TrimSpace(title[i])
+func TrimSpacesFromArray(title *[]string) {
+	copy := *title
+
+	for i := 0; i < len(*title); i++ {
+		copy[i] = strings.TrimSpace(copy[i])
 	}
-	return title
+
+	*title = copy
 }
 
 func TrimSuffixesFromWord(word *string, suffixes ...string) {

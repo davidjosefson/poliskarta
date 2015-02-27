@@ -26,7 +26,7 @@ func Rule1(description string) []string {
 
 	//Split on spaces - descWords = array
 	descWords := strings.Split(description, " ")
-	descWords = helperfunctions.TrimSpacesFromArray(descWords)
+	helperfunctions.TrimSpacesFromArray(&descWords)
 
 	//The resulting array of words after filtering
 	placeWords := []string{}
