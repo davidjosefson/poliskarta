@@ -18,9 +18,7 @@ func TrimSuffixFromWord(word string, suffix string) string {
 }
 
 func StartsWithUppercase(s string) bool {
-
 	return unicode.IsUpper([]rune(s)[0])
-
 }
 
 func StringInSliceIgnoreCase(s string, list []string) bool {
