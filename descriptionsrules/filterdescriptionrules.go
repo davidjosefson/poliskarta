@@ -53,22 +53,11 @@ func Rule1(description string) []string {
 			}
 		}
 
-		//Ta eventuellt med ordet om det börjar med stor bokstav
-		if helperfunctions.StartsWithUppercase(currentWord) {
-
-			//Om det inte är en Europaväg så ska det eventuellt vara med
-			if !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
-
-				//ta bort punkter och kommatecken
-				helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-
-				//Nu får ordet läggas in (tror vi)
-				placeWords = append(placeWords, currentWord)
-			}
-
+		//Check if the word starts with uppercase and is NOT a europe road
+		if helperfunctions.StartsWithUppercase(currentWord) && !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
+			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+			placeWords = append(placeWords, currentWord)
 		}
-
-		// checkForStartingCapitalLetter(*currentWord)
 	}
 
 	return placeWords
