@@ -31,7 +31,7 @@ func Rule1(description string) []string {
 	helperfunctions.TrimSpacesFromArray(&descWords)
 
 	//The resulting array of words after filtering
-	placeWords := []string{}
+	locationWords := []string{}
 
 	//Loop through the array of words
 	for i := 1; i < len(descWords); i++ {
@@ -50,11 +50,22 @@ func Rule1(description string) []string {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 
 			if helperfunctions.StringInSlice(currentWord, validWordsForPlaces) {
-				placeWords = append(placeWords, currentWord)
+				locationWords = append(locationWords, currentWord)
 				prevWordAdded = true
 				continue
 			}
 		}
+
+		/*
+			Här har jag en tanke om att fixa en bakåt-koll när man stöter på en siffra, istället
+			för en framåtkoll. Nu kollas ifall VARJE ord finns med i invalid road-listan!
+			Då följer man samma struktur som för övriga checkar vi gör. Men det kan också bli kass, har
+			inte tänkt igenom det helt.
+
+			Dessutom: kanske kan fixa en punkt-koll så att man bara behöver göra trim på . och , en gång i början,
+			alltså först kolla om ordet har punkt eller komma, och isf sätta en bool till true, sen trimma oavsett.
+			Nu trimmas det tre gånger, och fler lär det bli.
+		*/
 
 		//Check if current word is part of the invalid road-words
 		if helperfunctions.StringInSlice(currentWord, invalidWordsForRoads) && currentIndexNotLast(i, descWords) {
@@ -63,9 +74,9 @@ func Rule1(description string) []string {
 
 			//Check if next word is number, if so: add it
 			if helperfunctions.WordIsNumber(nextWordInArray) {
-				placeWords = append(placeWords, nextWordInArray)
-				i++
+				locationWords = append(locationWords, nextWordInArray)
 				prevWordAdded = true
+				i++
 				continue
 			}
 		}
@@ -74,7 +85,8 @@ func Rule1(description string) []string {
 		if helperfunctions.StartsWithUppercase(currentWord) {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 			if !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
-				placeWords = append(placeWords, currentWord)
+				addWordTolocationWords()
+				locationWords = append(locationWords, currentWord)
 				prevWordAdded = true
 			}
 		} else {
@@ -82,7 +94,7 @@ func Rule1(description string) []string {
 		}
 	}
 
-	return placeWords
+	return locationWords
 }
 func fillEuropeRoads() {
 	europeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E", "Lv"}
