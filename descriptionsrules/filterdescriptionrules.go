@@ -24,6 +24,8 @@ func Rule1(description string) []string {
 	fillValidWordsForPlaces()
 	fillInvalidWordsForRoads()
 
+	prevWordAdded := false
+
 	//Split on spaces - descWords = array
 	descWords := strings.Split(description, " ")
 	helperfunctions.TrimSpacesFromArray(&descWords)
@@ -35,20 +37,35 @@ func Rule1(description string) []string {
 	for i := 1; i < len(descWords); i++ {
 
 		currentWord := descWords[i]
+		prevWord := descWords[i-1]
 
 		//Skip iteration if the previous word had a "." in the end
-		if strings.HasSuffix(descWords[i-1], ".") {
+		if strings.HasSuffix(prevWord, ".") {
+			prevWordAdded = false
 			continue
 		}
 
+		//Check if previous word was added and current word is in valid road list
+		if prevWordAdded {
+			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+
+			if helperfunctions.StringInSlice(currentWord, validWordsForPlaces) {
+				placeWords = append(placeWords, currentWord)
+				prevWordAdded = true
+				continue
+			}
+		}
+
 		//Check if current word is part of the invalid road-words
-		if helperfunctions.StringInSlice(currentWord, invalidWordsForRoads) && currentWordNotLastWordInArray(i, descWords) {
+		if helperfunctions.StringInSlice(currentWord, invalidWordsForRoads) && currentIndexNotLast(i, descWords) {
 			nextWordInArray := descWords[i+1]
 			helperfunctions.TrimSuffixesFromWord(&nextWordInArray, ".", ",")
 
 			//Check if next word is number, if so: add it
 			if helperfunctions.WordIsNumber(nextWordInArray) {
 				placeWords = append(placeWords, nextWordInArray)
+				i++
+				prevWordAdded = true
 				continue
 			}
 		}
@@ -57,6 +74,27 @@ func Rule1(description string) []string {
 		if helperfunctions.StartsWithUppercase(currentWord) && !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 			placeWords = append(placeWords, currentWord)
+			prevWordAdded = true
+
+			// if currentIndexNotLast(i, descWords) {
+			// 	nextWord := descWords[i+1]
+			// 	if helperfunctions.StringInSlice(nextWord, validWordsForPlaces) {
+			// 		helperfunctions.TrimSuffixesFromWord(&nextWord, ".", ",")
+			// 		placeWords = append(placeWords, nextWord)
+			// 		prevWordAdded = true
+			// 		// i++
+			// 	}
+			// }
+
+			//Check if the next word is a valid place word and add it
+			// for j := i + 1; j < i+2 || j < len(descWords)-1; j++ {
+			// 	if helperfunctions.StringInSlice(descWords[j], validWordsForPlaces) {
+			// 		placeWords = append(placeWords, descWords[j])
+			// 		// i = j
+			// 	}
+			// }
+		} else {
+			prevWordAdded = false
 		}
 	}
 
@@ -67,13 +105,13 @@ func fillEuropeRoads() {
 }
 
 func fillValidWordsForPlaces() {
-	validWordsForPlaces = []string{"väg", "gränd", "plats", "gata", "led", "torg", "park", "trappa", "trappor", "bro", "gångbro", "allé", "alle", "aveny", "plan", "kaj", "hamn", "strand", "stig", "backe", "kajen", "hamnen", "holme", "holmar", "dockan", "parkväg", "byväg", "byaväg", "gård", "stråket", "tvärgata", "gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata", "hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö", "träsk", "flygplats", "industriväg", "trappgata", "kärr"}
+	validWordsForPlaces = []string{"väg", "gränd", "plats", "gata", "led", "torg", "park", "trappa", "trappor", "bro", "gångbro", "allé", "alle", "aveny", "plan", "kaj", "hamn", "strand", "stig", "backe", "kajen", "hamnen", "holme", "holmar", "dockan", "parkväg", "byväg", "byaväg", "gård", "stråket", "tvärgata", "gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata", "hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö", "träsk", "flygplats", "industriväg", "trappgata", "kärr", "ringvägen"}
 }
 
 func fillInvalidWordsForRoads() {
 	invalidWordsForRoads = []string{"väg", "Lv", "Länsväg", "länsväg"}
 }
 
-func currentWordNotLastWordInArray(index int, strings []string) bool {
+func currentIndexNotLast(index int, strings []string) bool {
 	return index < len(strings)-1
 }
