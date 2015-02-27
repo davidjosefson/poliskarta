@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-var europeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E", "Lv"}
+var europeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E"}
+var invalidWordsForRoads = []string{"väg", "Lv", "Länsväg", "länsväg"}
 var validWordsForPlaces = []string{
 	"väg", "gränd", "plats", "gata", "led", "torg", "park", "trappa",
 	"trappor", "bro", "gångbro", "allé", "alle", "aveny", "plan", "kaj",
@@ -14,7 +15,6 @@ var validWordsForPlaces = []string{
 	"gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata",
 	"hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö",
 	"träsk", "flygplats", "industriväg", "trappgata", "kärr", "ringvägen"}
-var invalidWordsForRoads = []string{"väg", "Lv", "Länsväg", "länsväg"}
 
 //Rule 1:
 func Rule1(description string) []string {
@@ -80,7 +80,7 @@ func Rule1(description string) []string {
 		if helperfunctions.StartsWithUppercase(currentWord) {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 
-			if !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
+			if !helperfunctions.StringInSlice(currentWord, europeRoads) {
 				locationWords = append(locationWords, currentWord)
 				prevWordAdded = true
 			}
