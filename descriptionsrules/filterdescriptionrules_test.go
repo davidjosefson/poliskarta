@@ -52,24 +52,24 @@ func Test_Rule1(t *testing.T) {
 		if len(location) != len(desc.location) {
 			failedTests++
 			t.Error(
-				"For", desc.description,
-				"Expected", desc.location,
-				"got", location,
+				"\n\t\tFor:   \t ", desc.description,
+				"\n\t\tExpected:", desc.location,
+				"\n\t\tGot:   \t ", location,
 			)
 		} else {
 			for i := 0; i < len(location); i++ {
 				if location[i] != desc.location[i] {
 					failedTests++
 					t.Error(
-						"For", desc.description,
-						"Expected", desc.location,
-						"got", location,
+						"\n\t\tFor:   \t ", desc.description,
+						"\n\t\tExpected:", desc.location,
+						"\n\t\tGot:   \t ", location,
 					)
 				}
 			}
 		}
 	}
-
-	t.Log("Number of tests run: ", testedAmount)
-	t.Log("Number of tests failed: ", failedTests)
+	t.Log("--------------------------------------------")
+	t.Logf("Failed tests: %v of %v ", failedTests, testedAmount)
+	// t.Log("Number of tests failed: ", failedTests)
 }
