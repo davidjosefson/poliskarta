@@ -36,7 +36,7 @@ var descriptions = []descriptionPairs{
 	{"Georg Lückligs väg och larm om ungdomar som bråkar. På platsen.", []string{"Lückligs väg"}},
 	{"personbil-minibuss på vägen mellan Hinneryd-Traryd. I minibussen", []string{"Hinneryd-Traryd"}},
 	{"Per Högströmsgatan", []string{"Högströmsgatan"}},
-	{"Singelolycka, väg 1560, Tomelillabygden.", []string{"1560"}},
+	{"Singelolycka, väg 1560, Tomelillabygden.", []string{"1560", "Tomelillabygden"}},
 	{"Skit hände på Trumvägen område Hamptjärnsmoran Boden är en åra", []string{"Trumvägen", "Hamtjärnsmoran", "Boden"}},
 }
 
