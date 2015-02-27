@@ -75,24 +75,6 @@ func Rule1(description string) []string {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 			placeWords = append(placeWords, currentWord)
 			prevWordAdded = true
-
-			// if currentIndexNotLast(i, descWords) {
-			// 	nextWord := descWords[i+1]
-			// 	if helperfunctions.StringInSlice(nextWord, validWordsForPlaces) {
-			// 		helperfunctions.TrimSuffixesFromWord(&nextWord, ".", ",")
-			// 		placeWords = append(placeWords, nextWord)
-			// 		prevWordAdded = true
-			// 		// i++
-			// 	}
-			// }
-
-			//Check if the next word is a valid place word and add it
-			// for j := i + 1; j < i+2 || j < len(descWords)-1; j++ {
-			// 	if helperfunctions.StringInSlice(descWords[j], validWordsForPlaces) {
-			// 		placeWords = append(placeWords, descWords[j])
-			// 		// i = j
-			// 	}
-			// }
 		} else {
 			prevWordAdded = false
 		}
