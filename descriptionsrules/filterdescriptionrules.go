@@ -71,10 +71,12 @@ func Rule1(description string) []string {
 		}
 
 		//Check if current word starts with uppercase and is NOT europe road
-		if helperfunctions.StartsWithUppercase(currentWord) && !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
+		if helperfunctions.StartsWithUppercase(currentWord) {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-			placeWords = append(placeWords, currentWord)
-			prevWordAdded = true
+			if !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
+				placeWords = append(placeWords, currentWord)
+				prevWordAdded = true
+			}
 		} else {
 			prevWordAdded = false
 		}
