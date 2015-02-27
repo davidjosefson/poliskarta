@@ -26,24 +26,24 @@ func Rule1(description string) []string {
 
 	//Split on spaces - descWords = array
 	descWords := strings.Split(description, " ")
-	trimmedDescWords := helperfunctions.TrimSpacesFromArray(descWords)
+	descWords = helperfunctions.TrimSpacesFromArray(descWords)
 
 	//The resulting array of words after filtering
 	placeWords := []string{}
 
 	//Loop through the array of words
-	for i := 1; i < len(trimmedDescWords); i++ {
+	for i := 1; i < len(descWords); i++ {
 
-		currentWord := trimmedDescWords[i]
+		currentWord := descWords[i]
 
-		//Go to the next word in the array if the previous word had a "." in the end
-		if strings.HasSuffix(trimmedDescWords[i-1], ".") {
+		//Skip iteration if the previous word had a "." in the end
+		if strings.HasSuffix(descWords[i-1], ".") {
 			continue
 		}
 
 		//Check if current word is part of the invalid road-words
-		if helperfunctions.StringInSlice(currentWord, invalidWordsForRoads) && currentWordNotLastWordInArray(i, trimmedDescWords) {
-			nextWordInArray := trimmedDescWords[i+1]
+		if helperfunctions.StringInSlice(currentWord, invalidWordsForRoads) && currentWordNotLastWordInArray(i, descWords) {
+			nextWordInArray := descWords[i+1]
 			helperfunctions.TrimSuffixesFromWord(&nextWordInArray, ".", ",")
 
 			//Check if next word is number, if so: add it
@@ -53,7 +53,7 @@ func Rule1(description string) []string {
 			}
 		}
 
-		//Check if the word starts with uppercase and is NOT a europe road
+		//Check if current word starts with uppercase and is NOT europe road
 		if helperfunctions.StartsWithUppercase(currentWord) && !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 			placeWords = append(placeWords, currentWord)
