@@ -6,14 +6,23 @@ import (
 	"strings"
 )
 
-var EuorpeRoads []string
-var arrayOfTitles []string
-var namesForPlacesToInclude []string
+//Used to filter out Europe road names, like "E6", "E22"
+var europeRoads []string
+
+// var arrayOfTitles []string
+
+//Used to include common words in names of places
+//separated by space, like "Jörgens trappa", "Anna Lindhs plats"
+var validWordsForPlaces []string
+
+//Used to filter out words for roads followed by numbers,
+//like "Lv 598", "väg 112" and the like
+var inValidWordsForRoads []string
 
 //Rule 1:
 func Rule1(title string) []string {
 	fillEuropeRoads()
-	fillNamesForPlacesToInclude()
+	fillValidWordsForPlaces()
 
 	descWords := strings.Split(title, " ")
 	trimmedDescWords := helperfunctions.TrimSpacesFromArray(descWords)
@@ -45,7 +54,7 @@ func Rule1(title string) []string {
 		if helperfunctions.StartsWithUppercase(currentWord) {
 
 			//Om det inte är en Europaväg så ska det eventuellt vara med
-			if !helperfunctions.StringInSliceIgnoreCase(currentWord, EuorpeRoads) {
+			if !helperfunctions.StringInSliceIgnoreCase(currentWord, europeRoads) {
 
 				//ta bort punkter och kommatecken
 				currentWord = helperfunctions.TrimSuffixFromWord(currentWord, ".")
@@ -61,9 +70,13 @@ func Rule1(title string) []string {
 	return placeDescription
 }
 func fillEuropeRoads() {
-	EuorpeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E", "Lv"}
+	europeRoads = []string{"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65", "E", "Lv"}
 }
 
-func fillNamesForPlacesToInclude() {
-	namesForPlacesToInclude = []string{"väg", "gränd", "plats", "gata", "led", "torg", "park", "trappa", "trappor", "bro", "gångbro", "allé", "alle", "aveny", "plan", "kaj", "hamn", "strand", "stig", "backe", "kajen", "hamnen", "holme", "holmar", "dockan", "parkväg", "byväg", "byaväg", "gård", "stråket", "tvärgata", "gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata", "hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö", "träsk", "flygplats", "industriväg", "trappgata", "kärr"}
+func fillValidWordsForPlaces() {
+	validWordsForPlaces = []string{"väg", "gränd", "plats", "gata", "led", "torg", "park", "trappa", "trappor", "bro", "gångbro", "allé", "alle", "aveny", "plan", "kaj", "hamn", "strand", "stig", "backe", "kajen", "hamnen", "holme", "holmar", "dockan", "parkväg", "byväg", "byaväg", "gård", "stråket", "tvärgata", "gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata", "hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö", "träsk", "flygplats", "industriväg", "trappgata", "kärr"}
+}
+
+func fillInvalidWordsForRoads() {
+	inValidWordsForRoads = []string{"väg", "Lv", "Länsväg", "länsväg"}
 }
