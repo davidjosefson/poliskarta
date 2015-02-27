@@ -1,6 +1,7 @@
 package helperfunctions
 
 import (
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -12,20 +13,36 @@ func TrimSpacesFromArray(title []string) []string {
 	return title
 }
 
-func TrimSuffixFromWord(word string, suffix string) string {
-	word = strings.TrimSuffix(word, suffix)
-	return word
+func TrimSuffixesFromWord(word *string, suffixes ...string) {
+	for _, suffix := range suffixes {
+		copy := *word
+		*word = strings.TrimSuffix(copy, suffix)
+	}
 }
 
-func StartsWithUppercase(s string) bool {
-	return unicode.IsUpper([]rune(s)[0])
+func StartsWithUppercase(str string) bool {
+	return unicode.IsUpper([]rune(str)[0])
 }
 
-func StringInSliceIgnoreCase(s string, list []string) bool {
-	for _, str := range list {
-		if strings.ToLower(s) == strings.ToLower(str) {
+func StringInSlice(str string, slice []string) bool {
+	for _, strInSlice := range slice {
+		if str == strInSlice {
 			return true
 		}
 	}
 	return false
+}
+
+func StringInSliceIgnoreCase(str string, slice []string) bool {
+	for _, strInSlice := range slice {
+		if strings.ToLower(str) == strings.ToLower(strInSlice) {
+			return true
+		}
+	}
+	return false
+}
+
+func WordIsNumber(word string) bool {
+	_, err := strconv.Atoi(word)
+	return err == nil
 }
