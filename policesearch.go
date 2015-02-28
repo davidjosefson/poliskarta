@@ -1,6 +1,12 @@
 package main
 
-import "github.com/go-martini/martini"
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+
+	"github.com/go-martini/martini"
+)
 
 // var placesSlice = []string{
 // 	"blekinge", "dalarna", "gotland", "gavleborg", "halland", "jamtland",
@@ -9,34 +15,34 @@ import "github.com/go-martini/martini"
 // 	"vastmanland", "vastragotaland", "orebro", "ostergotland"}
 
 var places = map[string]string{
-	"blekinge":       "http://www.polisen.se/rss-nyheter-blekinge",
-	"dalarna":        "http://www.polisen.se/rss-nyheter-dalarna",
-	"gotland":        "http://www.polisen.se/rss-nyheter-gotland",
-	"gavleborg":      "http://www.polisen.se/rss-nyheter-gavleborg",
-	"halland":        "http://www.polisen.se/rss-nyheter-halland",
-	"jamtland":       "http://www.polisen.se/rss-nyheter-jamtland",
-	"jonkoping":      "http://www.polisen.se/rss-nyheter-jonkoping",
-	"kalmar":         "http://www.polisen.se/rss-nyheter-kalmar",
-	"kronoberg":      "http://www.polisen.se/rss-nyheter-kronoberg",
-	"norrbotten":     "http://www.polisen.se/rss-nyheter-norrbotten",
-	"skane":          "http://www.polisen.se/rss-nyheter-skane",
-	"stockholm":      "http://www.polisen.se/rss-nyheter-stockholm",
-	"sodermanland":   "http://www.polisen.se/rss-nyheter-sodermanland",
-	"uppsala":        "http://www.polisen.se/rss-nyheter-uppsala",
-	"varmland":       "http://www.polisen.se/rss-nyheter-varmland",
-	"vasterbotten":   "http://www.polisen.se/rss-nyheter-vasterbotten",
-	"vasternorrland": "http://www.polisen.se/rss-nyheter-vasternorrland",
-	"vastmanland":    "http://www.polisen.se/rss-nyheter-vastmanland",
-	"vastragotaland": "http://www.polisen.se/rss-nyheter-vastragotaland",
-	"orebro":         "http://www.polisen.se/rss-nyheter-orebro",
-	"ostergotland":   "http://www.polisen.se/rss-nyheter-ostergotland",
+	"blekinge":       "http://www.polisen.se/rss-handelser-blekinge",
+	"dalarna":        "http://www.polisen.se/rss-handelser-dalarna",
+	"gotland":        "http://www.polisen.se/rss-handelser-gotland",
+	"gavleborg":      "http://www.polisen.se/rss-handelser-gavleborg",
+	"halland":        "http://www.polisen.se/rss-handelser-halland",
+	"jamtland":       "http://www.polisen.se/rss-handelser-jamtland",
+	"jonkoping":      "http://www.polisen.se/rss-handelser-jonkoping",
+	"kalmar":         "http://www.polisen.se/rss-handelser-kalmar",
+	"kronoberg":      "http://www.polisen.se/rss-handelser-kronoberg",
+	"norrbotten":     "http://www.polisen.se/rss-handelser-norrbotten",
+	"skane":          "http://www.polisen.se/rss-handelser-skane",
+	"stockholm":      "http://www.polisen.se/rss-handelser-stockholm",
+	"sodermanland":   "http://www.polisen.se/rss-handelser-sodermanland",
+	"uppsala":        "http://www.polisen.se/rss-handelser-uppsala",
+	"varmland":       "http://www.polisen.se/rss-handelser-varmland",
+	"vasterbotten":   "http://www.polisen.se/rss-handelser-vasterbotten",
+	"vasternorrland": "http://www.polisen.se/rss-handelser-vasternorrland",
+	"vastmanland":    "http://www.polisen.se/rss-handelser-vastmanland",
+	"vastragotaland": "http://www.polisen.se/rss-handelser-vastragotaland",
+	"orebro":         "http://www.polisen.se/rss-handelser-orebro",
+	"ostergotland":   "http://www.polisen.se/rss-handelser-ostergotland",
 }
 
 func main() {
 	m := martini.Classic()
 
 	m.Group("/", func(r martini.Router) {
-		r.Get(":place", fullListOfEvents)
+		r.Get(":place", allEvents)
 		r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 	})
 
@@ -46,11 +52,18 @@ func main() {
 	// http.ListenAndServe(":9090", nil)
 }
 
-func fullListOfEvents(params martini.Params) (int, string) {
-	if validPlace(params["place"]) {
-		return 200, params["place"] + " seems like a valid place"
+func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params) {
+	place := params["place"]
+
+	if isPlaceValid(place) {
+		json := callExternalServicesAndCreateJson(place)
+		res.Header().Add("Content-type", "application/json")
+		res.Write([]byte(json))
 	} else {
-		return 400, "Error: " + params["place"] + " is not a valid place.."
+		status := http.StatusBadRequest
+		res.WriteHeader(status) // http-status 400
+		errorMessage := fmt.Sprintf("%v: %v \n\n\"%v\" is not a valid place", status, http.StatusText(status), place)
+		res.Write([]byte(errorMessage))
 	}
 }
 
@@ -58,13 +71,20 @@ func singleEvent(params martini.Params) string {
 	return params["number"]
 }
 
-func validPlace(parameter string) bool {
+func isPlaceValid(parameter string) bool {
 	for place, _ := range places {
 		if place == parameter {
 			return true
 		}
 	}
 	return false
+}
+
+//SKAPAR INTE NÅGON JSON, HÄMTAR BARA XML FRÅN POLISEN OCH RETURNERAR!
+func callExternalServicesAndCreateJson(place string) string {
+	response, _ := http.Get(places[place])
+	str, _ := ioutil.ReadAll(response.Body)
+	return string(str)
 }
 
 // func skane(wr http.ResponseWriter, re *http.Request) {
