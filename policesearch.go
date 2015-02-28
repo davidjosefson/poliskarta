@@ -2,40 +2,69 @@ package main
 
 import "github.com/go-martini/martini"
 
+// var placesSlice = []string{
+// 	"blekinge", "dalarna", "gotland", "gavleborg", "halland", "jamtland",
+// 	"jonkoping", "kalmar", "kronoberg", "norrbotten", "skane", "stockholm",
+// 	"sodermanland", "uppsala", "varmland", "vasterbotten", "vasternorrland",
+// 	"vastmanland", "vastragotaland", "orebro", "ostergotland"}
+
+var places = map[string]string{
+	"blekinge":       "http://www.polisen.se/rss-nyheter-blekinge",
+	"dalarna":        "http://www.polisen.se/rss-nyheter-dalarna",
+	"gotland":        "http://www.polisen.se/rss-nyheter-gotland",
+	"gavleborg":      "http://www.polisen.se/rss-nyheter-gavleborg",
+	"halland":        "http://www.polisen.se/rss-nyheter-halland",
+	"jamtland":       "http://www.polisen.se/rss-nyheter-jamtland",
+	"jonkoping":      "http://www.polisen.se/rss-nyheter-jonkoping",
+	"kalmar":         "http://www.polisen.se/rss-nyheter-kalmar",
+	"kronoberg":      "http://www.polisen.se/rss-nyheter-kronoberg",
+	"norrbotten":     "http://www.polisen.se/rss-nyheter-norrbotten",
+	"skane":          "http://www.polisen.se/rss-nyheter-skane",
+	"stockholm":      "http://www.polisen.se/rss-nyheter-stockholm",
+	"sodermanland":   "http://www.polisen.se/rss-nyheter-sodermanland",
+	"uppsala":        "http://www.polisen.se/rss-nyheter-uppsala",
+	"varmland":       "http://www.polisen.se/rss-nyheter-varmland",
+	"vasterbotten":   "http://www.polisen.se/rss-nyheter-vasterbotten",
+	"vasternorrland": "http://www.polisen.se/rss-nyheter-vasternorrland",
+	"vastmanland":    "http://www.polisen.se/rss-nyheter-vastmanland",
+	"vastragotaland": "http://www.polisen.se/rss-nyheter-vastragotaland",
+	"orebro":         "http://www.polisen.se/rss-nyheter-orebro",
+	"ostergotland":   "http://www.polisen.se/rss-nyheter-ostergotland",
+}
+
 func main() {
 	m := martini.Classic()
 
-	m.Group("/skane", func(r martini.Router) {
-		r.Get("/", test)
-		r.Get("/wiie", wiie)
-		// r.Get("/:id", GetBooks)
-	})
-
-	m.Get("/skane/", func() string {
-		return "skanesmmmsadfadsfasdf"
+	m.Group("/", func(r martini.Router) {
+		r.Get(":place", fullListOfEvents)
+		r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 	})
 
 	m.Run()
-
-	// http.HandleFunc("/skane/", skane)
-	// http.HandleFunc("/skane/0/", skaneSingle)
-	// http.HandleFunc("/skane/1/", skaneSingle)
-	// http.HandleFunc("/skane/2/", skaneSingle)
-
-	// http.HandleFunc("/stockholm/", stockholm)
-	// http.HandleFunc("/stockholm/0/", stockholmSingle)
-	// http.HandleFunc("/stockholm/1/", stockholmSingle)
 
 	// //http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))) //To find css-files in the css-folder
 	// http.ListenAndServe(":9090", nil)
 }
 
-func test() string {
-	return "groups skane"
+func fullListOfEvents(params martini.Params) (int, string) {
+	if validPlace(params["place"]) {
+		return 200, params["place"] + " seems like a valid place"
+	} else {
+		return 400, "Error: " + params["place"] + " is not a valid place.."
+	}
 }
 
-func wiie() string {
-	return "wiee skane"
+func singleEvent(params martini.Params) string {
+	return params["number"]
+}
+
+func validPlace(parameter string) bool {
+	for place, _ := range places {
+		if place == parameter {
+			return true
+		}
+	}
+	return false
 }
 
 // func skane(wr http.ResponseWriter, re *http.Request) {
