@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -8,34 +10,28 @@ import (
 	"github.com/go-martini/martini"
 )
 
-// var placesSlice = []string{
-// 	"blekinge", "dalarna", "gotland", "gavleborg", "halland", "jamtland",
-// 	"jonkoping", "kalmar", "kronoberg", "norrbotten", "skane", "stockholm",
-// 	"sodermanland", "uppsala", "varmland", "vasterbotten", "vasternorrland",
-// 	"vastmanland", "vastragotaland", "orebro", "ostergotland"}
-
 var places = map[string]string{
-	"blekinge":       "http://www.polisen.se/rss-handelser-blekinge",
-	"dalarna":        "http://www.polisen.se/rss-handelser-dalarna",
-	"gotland":        "http://www.polisen.se/rss-handelser-gotland",
-	"gavleborg":      "http://www.polisen.se/rss-handelser-gavleborg",
-	"halland":        "http://www.polisen.se/rss-handelser-halland",
-	"jamtland":       "http://www.polisen.se/rss-handelser-jamtland",
-	"jonkoping":      "http://www.polisen.se/rss-handelser-jonkoping",
-	"kalmar":         "http://www.polisen.se/rss-handelser-kalmar",
-	"kronoberg":      "http://www.polisen.se/rss-handelser-kronoberg",
-	"norrbotten":     "http://www.polisen.se/rss-handelser-norrbotten",
-	"skane":          "http://www.polisen.se/rss-handelser-skane",
-	"stockholm":      "http://www.polisen.se/rss-handelser-stockholm",
-	"sodermanland":   "http://www.polisen.se/rss-handelser-sodermanland",
-	"uppsala":        "http://www.polisen.se/rss-handelser-uppsala",
-	"varmland":       "http://www.polisen.se/rss-handelser-varmland",
-	"vasterbotten":   "http://www.polisen.se/rss-handelser-vasterbotten",
-	"vasternorrland": "http://www.polisen.se/rss-handelser-vasternorrland",
-	"vastmanland":    "http://www.polisen.se/rss-handelser-vastmanland",
-	"vastragotaland": "http://www.polisen.se/rss-handelser-vastragotaland",
-	"orebro":         "http://www.polisen.se/rss-handelser-orebro",
-	"ostergotland":   "http://www.polisen.se/rss-handelser-ostergotland",
+	"blekinge":       "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss",
+	"dalarna":        "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss",
+	"gotland":        "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss",
+	"gavleborg":      "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss",
+	"halland":        "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss",
+	"jamtland":       "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss",
+	"jonkoping":      "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss",
+	"kalmar":         "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kalmar?feed=rss",
+	"kronoberg":      "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss",
+	"norrbotten":     "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss",
+	"skane":          "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss",
+	"stockholm":      "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss",
+	"sodermanland":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss",
+	"uppsala":        "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala?feed=rss",
+	"varmland":       "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss",
+	"vasterbotten":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss",
+	"vasternorrland": "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss",
+	"vastmanland":    "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss",
+	"vastragotaland": "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastragotaland?feed=rss",
+	"orebro":         "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro?feed=rss",
+	"ostergotland":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss",
 }
 
 func main() {
@@ -80,45 +76,60 @@ func isPlaceValid(parameter string) bool {
 	return false
 }
 
-//SKAPAR INTE NÅGON JSON, HÄMTAR BARA XML FRÅN POLISEN OCH RETURNERAR!
 func callExternalServicesAndCreateJson(place string) string {
-	response, _ := http.Get(places[place])
-	str, _ := ioutil.ReadAll(response.Body)
-	return string(str)
+	/*
+		1. Get Police RSS XML
+		2. Save each event as event-struct-array
+		3. Fill "searchwords"-fields by using the filters
+		4. Get google search results using "searchwords" - save coordinates as fields in struct
+		5. Convert search result as JSON and return string
+	*/
+
+	policeRSSxml := callPoliceRSS(places[place])
+	policeEvents := policeXMLtoStructs(policeRSSxml)
+	// 3. Fill "searchwords"-fields by using the filters
+	// 4. Get google search results using "searchwords" - save coordinates as fields in struct
+	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
+
+	return string(policeEventsAsJson)
 }
 
-// func skane(wr http.ResponseWriter, re *http.Request) {
-// 	/*
-// 		1. Fixa så att man kan anropa EN metod för alla län, en array med alla unika urls till polisens
-// 		2. Hämta polis-RSS och mappa till struct för Länet
-// 		3. Fixa en metod som kan ta reda på platsen namn (stad, by osv) för att söka i Google Maps
-// 		4. Gör ett anrop till Google Maps för varje platsnamn och få tillbaka koordinater/platsnamn
-// 		5. Returnera en lång lista med händelser och platskoordinater
+func callPoliceRSS(url string) []byte {
+	httpResponse, _ := http.Get(url)
+	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
 
-// 		6. Ifall man går in på skane/1/ ska enbart PoliceEvent[0] för det länet returneras
-// 	*/
+	defer httpResponse.Body.Close()
 
-// 	policeresponse, _ := http.Get("https://polisen.se/Gotlands_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss")
+	return xmlResponse
+}
 
-// 	defer policeresponse.Body.Close()
+func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
+	var policeEvents PoliceEvents
+	xml.Unmarshal(policeRSSxml, &policeEvents)
 
-// 	var channel Channel
+	return policeEvents
+}
 
-// 	xml.NewDecoder(policeresponse.Body).Decode(&channel)
+func encodePoliceEventsToJSON(policeEvents PoliceEvents) []byte {
+	policeEventsAsJson, _ := json.Marshal(policeEvents)
 
-// 	fmt.Println(channel.Items)
-// }
+	return policeEventsAsJson
+}
 
-// type Foobar struct {
-// 	PoliceEvents []PoliceEvent `xml:"channel>item"`
-// }
+/* -- STRUCTS -- */
 
-// type PoliceEvent struct {
-// 	Title       string `xml:"title"`
-// 	Link        string `xml:"link"`
-// 	Description string `xml:"description"`
-// 	PubDate     string `xml:"pubDate"`
-// }
+type PoliceEvents struct {
+	Events []PoliceEvent `xml:"channel>item"`
+}
+
+type PoliceEvent struct {
+	Title         string `xml:"title"`
+	Link          string `xml:"link"`
+	Description   string `xml:"description"`
+	LocationWords []string
+	Longitude     float32
+	Latitude      float32
+}
 
 // func moviesearch(wr http.ResponseWriter, re *http.Request) {
 // 	//1. lookup omdb-rate (first result only)
