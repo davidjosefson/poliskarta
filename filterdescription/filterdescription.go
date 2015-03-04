@@ -42,6 +42,10 @@ func addWords(description string) []string {
 		currentWord := descWords[i]
 		prevWord := descWords[i-1]
 
+		if currentWord == "" {
+			continue
+		}
+
 		//Skip iteration if the previous word had a "." in the end
 		if strings.HasSuffix(prevWord, ".") {
 			prevWordAdded = false
