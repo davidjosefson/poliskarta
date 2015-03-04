@@ -6,6 +6,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"poliskarta/filterdescription"
+	"poliskarta/filtertitle"
+	"strings"
 
 	"github.com/go-martini/martini"
 )
@@ -53,7 +57,7 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 
 	if isPlaceValid(place) {
 		json := callExternalServicesAndCreateJson(place)
-		res.Header().Add("Content-type", "application/json")
+		res.Header().Add("Content-type", "application/json; charset=utf-8")
 		res.Write([]byte(json))
 	} else {
 		status := http.StatusBadRequest
@@ -87,7 +91,7 @@ func callExternalServicesAndCreateJson(place string) string {
 
 	policeRSSxml := callPoliceRSS(places[place])
 	policeEvents := policeXMLtoStructs(policeRSSxml)
-	// 3. Fill "searchwords"-fields by using the filters
+	findAndFillLocationWords(&policeEvents)
 	// 4. Get google search results using "searchwords" - save coordinates as fields in struct
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
@@ -106,6 +110,7 @@ func callPoliceRSS(url string) []byte {
 func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
 	var policeEvents PoliceEvents
 	xml.Unmarshal(policeRSSxml, &policeEvents)
+	xml.Unmarshal(policeRSSxml, &policeEvents)
 
 	return policeEvents
 }
@@ -123,12 +128,75 @@ type PoliceEvents struct {
 }
 
 type PoliceEvent struct {
-	Title         string `xml:"title"`
-	Link          string `xml:"link"`
-	Description   string `xml:"description"`
-	LocationWords []string
-	Longitude     float32
-	Latitude      float32
+	Title            string `xml:"title"`
+	Link             string `xml:"link"`
+	Description      string `xml:"description"`
+	HasLocation      bool
+	LocationWords    []string
+	URLifiedLocation string
+	Longitude        float32
+	Latitude         float32
+}
+
+func findAndFillLocationWords(policeEvents *PoliceEvents) {
+	eventsCopy := *policeEvents
+
+	for index, _ := range eventsCopy.Events {
+		titleWords, err := filtertitle.FilterTitleWords(eventsCopy.Events[index].Title)
+		fmt.Println("Titlewords: ", titleWords)
+
+		if err != nil {
+			eventsCopy.Events[index].HasLocation = false
+		} else {
+			eventsCopy.Events[index].HasLocation = true
+			descriptionWords := filterdescription.FilterDescriptionWords(eventsCopy.Events[index].Description)
+			fmt.Println("Descwords: ", descriptionWords)
+			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
+			AddURLifiedURL(&eventsCopy.Events[index])
+		}
+
+	}
+
+	fmt.Println("EventsCopy.Events", eventsCopy.Events[0].LocationWords)
+
+	*policeEvents = eventsCopy
+}
+
+func AddURLifiedURL(policeEvent *PoliceEvent) {
+	eventCopy := *policeEvent
+	str := ""
+	for _, word := range eventCopy.LocationWords {
+		str += word + " "
+	}
+	str = url.QueryEscape(str)
+	str = strings.TrimSuffix(str, "+")
+
+	eventCopy.URLifiedLocation = str
+	*policeEvent = eventCopy
+}
+
+func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
+	location := []string{}
+
+	for _, descWord := range descriptionWords {
+		location = append(location, descWord)
+	}
+
+	wordAlreadyExists := false
+
+	for _, titleWord := range titleWords {
+		for _, locationWord := range location {
+			if titleWord == locationWord {
+				wordAlreadyExists = true
+				break
+			}
+		}
+		if !wordAlreadyExists {
+			location = append(location, titleWord)
+		}
+	}
+
+	*locationWords = location
 }
 
 // func moviesearch(wr http.ResponseWriter, re *http.Request) {
