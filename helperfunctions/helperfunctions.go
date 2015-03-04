@@ -16,6 +16,26 @@ func TrimSpacesFromArray(title *[]string) {
 	*title = copy
 }
 
+func TrimSuffixesFromStringSlice(slice *[]string, suffixes ...string) {
+	sliceCopy := *slice
+	for sliceIndex, _ := range sliceCopy {
+		for _, suffix := range suffixes {
+			sliceCopy[sliceIndex] = strings.TrimSuffix(sliceCopy[sliceIndex], suffix)
+		}
+	}
+	*slice = sliceCopy
+}
+
+func TrimPrefixesFromStringSlice(slice *[]string, prefixes ...string) {
+	sliceCopy := *slice
+	for sliceIndex, _ := range sliceCopy {
+		for _, prefix := range prefixes {
+			sliceCopy[sliceIndex] = strings.TrimPrefix(sliceCopy[sliceIndex], prefix)
+		}
+	}
+	*slice = sliceCopy
+}
+
 func TrimSuffixesFromWord(word *string, suffixes ...string) {
 	for _, suffix := range suffixes {
 		copy := *word
@@ -24,7 +44,13 @@ func TrimSuffixesFromWord(word *string, suffixes ...string) {
 }
 
 func StartsWithUppercase(str string) bool {
-	return unicode.IsUpper([]rune(str)[0])
+
+	if str == "" {
+		return false
+	} else {
+		return unicode.IsUpper([]rune(str)[0])
+	}
+
 }
 
 func StringInSlice(str string, slice []string) bool {
