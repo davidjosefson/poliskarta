@@ -49,3 +49,13 @@ func WordIsNumber(word string) bool {
 	_, err := strconv.Atoi(word)
 	return err == nil
 }
+
+func RemoveIndexFromSlice(index int, slice *[]string) {
+	sliceCopy := *slice
+	sliceCopy = append(sliceCopy[:index], sliceCopy[index+1:]...)
+	*slice = sliceCopy
+}
+
+func CurrentIndexNotLast(index int, slice []string) bool {
+	return index < len(slice)-1
+}
