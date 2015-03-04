@@ -48,7 +48,7 @@ func Test_Rule1(t *testing.T) {
 	for _, desc := range descriptions {
 		testedAmount++
 
-		location := Rule1(desc.description)
+		location := filterDescriptionWords(desc.description)
 
 		if len(location) != len(desc.location) {
 			failedTests++
