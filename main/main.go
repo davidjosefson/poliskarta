@@ -33,7 +33,7 @@ var places = map[string]string{
 	"vasterbotten":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss",
 	"vasternorrland": "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss",
 	"vastmanland":    "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss",
-	"vastragotaland": "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastragotaland?feed=rss",
+	"vastragotaland": "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss",
 	"orebro":         "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro?feed=rss",
 	"ostergotland":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss",
 }
@@ -91,8 +91,10 @@ func callExternalServicesAndCreateJson(place string) string {
 
 	policeRSSxml := callPoliceRSS(places[place])
 	policeEvents := policeXMLtoStructs(policeRSSxml)
+
 	findAndFillLocationWords(&policeEvents)
-	// 4. Get google search results using "searchwords" - save coordinates as fields in struct
+	findAndFillCoordinates(&policeEvents)
+
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return string(policeEventsAsJson)
@@ -109,7 +111,6 @@ func callPoliceRSS(url string) []byte {
 
 func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
 	var policeEvents PoliceEvents
-	xml.Unmarshal(policeRSSxml, &policeEvents)
 	xml.Unmarshal(policeRSSxml, &policeEvents)
 
 	return policeEvents
@@ -195,6 +196,116 @@ func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWor
 	*locationWords = location
 }
 
+/*
+TODO:
+	1. Joina goroutines (gemensam räknare, channel, eller nåt annat)
+	2. Fixa så att varje anrop kan söka om med färre ord, ifall den inte får ett bra resultat
+		- om den tex. bara får ut COUNTY, spara resultatet men gör om med färre för att se ifall man kan få
+			CITY eller helst STREET
+	3. Lägg till koordinaterna i policeEventsen och skicka till klienten
+	4. Koppla på GUI och casha in VG.
+
+*/
+
+func findAndFillCoordinates(policeEvents *PoliceEvents) {
+	eventsCopy := *policeEvents
+	singleQueryURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
+
+	for index, event := range eventsCopy.Events {
+		if event.HasLocation {
+			go singleCallGeoLocationService(singleQueryURL+event.URLifiedLocation, &eventsCopy.Events[index])
+		}
+
+	}
+
+	*policeEvents = eventsCopy
+}
+
+func singleCallGeoLocationService(url string, policeEvent *PoliceEvent) {
+	httpResponse, _ := http.Get(url)
+	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
+	// xmlResponse := []byte("<response> <info> <statusCode>0</statusCode> <messages/> <copyright> <imageUrl>http://api.mqcdn.com/res/mqlogo.gif</imageUrl> <imageAltText>© 2015 MapQuest, Inc.</imageAltText> <text>© 2015 MapQuest, Inc.</text> </copyright> </info> <results> <result> <providedLocation> <location>Köping</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.579954,15.8790217384978,0,0|&center=59.579954,15.8790217384978&zoom=9&rand=582209154 ]]> </mapUrl> </location> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-2,59.5137434,15.9970475,0,0|&center=59.5137434,15.9970475&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> <result> <providedLocation> <location>Erikslund Västerås</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.6132838,16.4622554,0,0|&center=59.6132838,16.4622554&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> </results> <options> <maxResults>-1</maxResults> <thumbMaps>true</thumbMaps> <ignoreLatLngInput>false</ignoreLatLngInput> <boundingBox/> </options> </response>")
+	// fmt.Println(string(xmlResponse))
+
+	defer httpResponse.Body.Close()
+
+	geoLocation := geolocationXMLtoStructs(xmlResponse)
+
+	fmt.Println(geoLocation.Locations)
+}
+
+func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
+	var geoLocation GeoLocation
+	xml.Unmarshal(XMLresponse, &geoLocation)
+
+	return geoLocation
+}
+
+type GeoLocation struct {
+	Locations []Location `xml:"results>result"`
+	// ThumbMaps string     `xml:"options>thumbMaps"`
+}
+
+type Location struct {
+	LocationAlternatives []LocationAlternative `xml:"locations>location"`
+}
+
+type LocationAlternative struct {
+	Quality   string `xml:"geocodeQuality"`
+	Latitude  string `xml:"displayLatLng>latLng>lat"`
+	Longitude string `xml:"displayLatLng>latLng>lng"`
+}
+
+// func batchCallGeoLocationService(url string) GeoLocationBatch {
+// 	httpResponse, _ := http.Get(url)
+// 	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
+// 	// xmlResponse := []byte("<response> <info> <statusCode>0</statusCode> <messages/> <copyright> <imageUrl>http://api.mqcdn.com/res/mqlogo.gif</imageUrl> <imageAltText>© 2015 MapQuest, Inc.</imageAltText> <text>© 2015 MapQuest, Inc.</text> </copyright> </info> <results> <result> <providedLocation> <location>Köping</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.579954,15.8790217384978,0,0|&center=59.579954,15.8790217384978&zoom=9&rand=582209154 ]]> </mapUrl> </location> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-2,59.5137434,15.9970475,0,0|&center=59.5137434,15.9970475&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> <result> <providedLocation> <location>Erikslund Västerås</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.6132838,16.4622554,0,0|&center=59.6132838,16.4622554&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> </results> <options> <maxResults>-1</maxResults> <thumbMaps>true</thumbMaps> <ignoreLatLngInput>false</ignoreLatLngInput> <boundingBox/> </options> </response>")
+// 	fmt.Println(string(xmlResponse))
+
+// 	defer httpResponse.Body.Close()
+
+// 	geoLocationBatch := geolocationXMLtoStructs(xmlResponse)
+
+// 	return geoLocationBatch
+// }
+
+// func geolocationXMLtoStructs(XMLresponse []byte) GeoLocationBatch {
+// 	var geoLocationBatch GeoLocationBatch
+// 	xml.Unmarshal(XMLresponse, &geoLocationBatch)
+
+// 	return geoLocationBatch
+// }
+
+// type GeoLocationBatch struct {
+// 	Locations []Location `xml:"results>result"`
+// 	ThumbMaps string     `xml:"options>thumbMaps"`
+// }
+
+// type Location struct {
+// 	LocationAlternatives []LocationAlternative `xml:"locations>location"`
+// }
+
+// type LocationAlternative struct {
+// 	Quality   string `xml:"geocodeQuality"`
+// 	Latitude  string `xml:"displayLatLng>latLng>lat"`
+// 	Longitude string `xml:"displayLatLng>latLng>lng"`
+// }
+
+/*type PoliceEvents struct {
+	Events []PoliceEvent `xml:"channel>item"`
+}
+
+type PoliceEvent struct {
+	Title            string `xml:"title"`
+	Link             string `xml:"link"`
+	Description      string `xml:"description"`
+	HasLocation      bool
+	LocationWords    []string
+	URLifiedLocation string
+	Longitude        float32
+	Latitude         float32
+}
+*/
 // func moviesearch(wr http.ResponseWriter, re *http.Request) {
 // 	//1. lookup omdb-rate (first result only)
 // 	//2. lookup rotten-rate (first result only)
