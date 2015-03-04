@@ -143,21 +143,17 @@ func findAndFillLocationWords(policeEvents *PoliceEvents) {
 
 	for index, _ := range eventsCopy.Events {
 		titleWords, err := filtertitle.FilterTitleWords(eventsCopy.Events[index].Title)
-		fmt.Println("Titlewords: ", titleWords)
 
 		if err != nil {
 			eventsCopy.Events[index].HasLocation = false
 		} else {
 			eventsCopy.Events[index].HasLocation = true
 			descriptionWords := filterdescription.FilterDescriptionWords(eventsCopy.Events[index].Description)
-			fmt.Println("Descwords: ", descriptionWords)
 			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
 			AddURLifiedURL(&eventsCopy.Events[index])
 		}
 
 	}
-
-	fmt.Println("EventsCopy.Events", eventsCopy.Events[0].LocationWords)
 
 	*policeEvents = eventsCopy
 }
