@@ -1,4 +1,4 @@
-package main
+package filterdescription
 
 import "testing"
 
@@ -41,14 +41,14 @@ var descriptions = []descriptionPairs{
 	{"Skit hände på Trumvägen område Hamptjärnsmoran Boden är en åra", []string{"Trumvägen", "Hamptjärnsmoran", "Boden"}},
 }
 
-func Test_Rule1(t *testing.T) {
+func Test_FilterDescriptionWords(t *testing.T) {
 	testedAmount := 0
 	failedTests := 0
 
 	for _, desc := range descriptions {
 		testedAmount++
 
-		location := filterDescriptionWords(desc.description)
+		location := FilterDescriptionWords(desc.description)
 
 		if len(location) != len(desc.location) {
 			failedTests++

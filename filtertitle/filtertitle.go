@@ -1,40 +1,39 @@
-package mainssss
+package filtertitle
 
 import (
-	"fmt"
 	"poliskarta/helperfunctions"
 	"strings"
 )
 
-func main() {
+// func main() {
 
-	arrayOfTitles := []string{"2015-02-15 11:08, Inbrott, Östra Göinge", "2015-01-20 10:28, Trafikolycka, Landskrona", "2015-02-15 00:49, Sammanfattning kväll, Norrbotten", "2015-02-24 20:21, Trafikolycka, singel, Helsingborg"}
+// 	arrayOfTitles := []string{"2015-02-15 11:08, Inbrott, Östra Göinge", "2015-01-20 10:28, Trafikolycka, Landskrona", "2015-02-15 00:49, Sammanfattning kväll, Norrbotten", "2015-02-24 20:21, Trafikolycka, singel, Helsingborg"}
 
-	for _, title := range arrayOfTitles {
+// 	for _, title := range arrayOfTitles {
 
-		fmt.Println()
-		fmt.Println("-------------------------")
+// 		fmt.Println()
+// 		fmt.Println("-------------------------")
 
-		fmt.Print("Processing title: ")
-		fmt.Println(title)
-		fmt.Println()
-		fmt.Print("Results: ")
+// 		fmt.Print("Processing title: ")
+// 		fmt.Println(title)
+// 		fmt.Println()
+// 		fmt.Print("Results: ")
 
-		hasSamanfattning := checkForSammanfattning(title)
+// 		hasSamanfattning := checkForSammanfattning(title)
 
-		if hasSamanfattning {
-			fmt.Println("Titlen har sammanfattning")
+// 		if hasSamanfattning {
+// 			fmt.Println("Titlen har sammanfattning")
 
-		} else {
+// 		} else {
 
-			titleWithoutTimeStamp := removeTimeStampFromTitle(title)
-			titleLocationInfo := removeNonLocationInfoFromTitle(titleWithoutTimeStamp)
-			fmt.Println(titleLocationInfo[0])
-		}
+// 			titleWithoutTimeStamp := removeTimeStampFromTitle(title)
+// 			titleLocationInfo := removeNonLocationInfoFromTitle(titleWithoutTimeStamp)
+// 			fmt.Println(titleLocationInfo[0])
+// 		}
 
-	}
+// 	}
 
-}
+// }
 
 //Title rule 1: Remove timestamp-thingy
 func removeTimeStampFromTitle(title string) string {

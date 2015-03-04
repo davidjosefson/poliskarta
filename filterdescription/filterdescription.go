@@ -1,4 +1,4 @@
-package main
+package filterdescription
 
 import (
 	"poliskarta/helperfunctions"
@@ -19,7 +19,7 @@ var validWordsForPlaces = []string{
 	"träsk", "flygplats", "industriväg", "trappgata", "kärr", "ringvägen",
 }
 
-func filterDescriptionWords(description string) []string {
+func FilterDescriptionWords(description string) []string {
 	locationWords := addWords(description)
 	removeInvalidWords(&locationWords)
 	return locationWords
