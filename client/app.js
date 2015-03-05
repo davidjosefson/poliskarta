@@ -4,7 +4,7 @@
         $sceDelegateProvider.resourceUrlWhitelist([
    // Allow same origin resource loads.
    'self',
-   // Allow loading from our assets domain.  Notice the difference between * and **.
+   // Allow loading from our assets domain. 
    'https://www.google.com/maps/embed/**']);
     });
     
@@ -16,9 +16,15 @@
     });
     app.filter("getStaticMapUrl", function () {
         return function (input) {
+//        return function (input, lat, lng) {
             this.output = "http://maps.googleapis.com/maps/api/staticmap?center=";
-            this.output = this.output + input;
-            this.output = this.output + "&zoom=12&size=300x200&maptype=roadmap&sensor=false&key=***REMOVED***";
+            this.output += input;
+            this.output += "&zoom=12&&scale=2&size=300x200&maptype=roadmap&sensor=false&key=***REMOVED***";
+            
+            //Detta ska läggas till när vi har koordinater
+            //this.output += "&markers=color:red%7ccolor:red%7clabel:c%7c"
+            //this.output += lat + "," + lng
+            
             return this.output;
         }
     });

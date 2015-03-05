@@ -9,7 +9,7 @@
         <p><strong ng-repeat="word in event.LocationWords">{{word}} </strong>
         </p>
 
-        <img ng-src="{{event.URLifiedLocation | getStaticMapUrl }}" style="float: center;" >
+        <img ng-src="{{event.URLifiedLocation | getStaticMapUrl }}" style="width:100%" >
 
 <!--        <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center=malm%C3%B6+ellstorp&zoom=12&size=300x300&maptype=roadmap&markers=color:red%7ccolor:red%7clabel:c%7c55.605422,13.031286&sensor=false&key=***REMOVED***">-->
 <!--
@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<a href="{{event.link}}">{{event.Link}}</a>
+<p></p><a href="{{event.link}}">{{event.Link}}</a>
 
 
 
