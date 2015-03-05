@@ -1,5 +1,5 @@
-.navbar-brand
-{
+
+.navbar-brand {
     position: absolute;
     width: 100%;
     left: 0;
@@ -8,7 +8,9 @@
     margin: auto;
 }
 
-
+.greentext {
+    color: #528237 !important;
+}
 
 #main {
     max-width: 800px;
@@ -16,4 +18,30 @@
 
 .half-width {
     width: 40%
+}
+
+.main-header {
+    min-height: 20px;
+    padding: 0px 19px 19px 19px;
+    margin-bottom: 20px;
+    background-color: #EDEDED;
+    border: 1px solid #CDCDCD;
+    border-radius: 0px;
+}
+
+.main-header h1 {
+    color: #528237;
+}
+
+.well {
+    background-color: #EDEDED;
+    border: 1px solid #CDCDCD;
+    border-radius: 0px;
+    margin-bottom: 10px;
+}
+.navbar-default {
+    background-color: #CDCDCD;
+    border-bottom: 1px solid #AAA;
+    border-radius: 0px;
+    
 }
