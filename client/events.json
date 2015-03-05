@@ -1,0 +1,20 @@
+   [
+       {
+           "title": "Trafikolycka, Trelleborg",
+           "time": "2015-03-04 08:01",
+           "location": "Allmogevägen Trelleborg",
+           "description": "Bil och cyklist i kollision, Allmogevägen. En personbil kolliderar med en cyklist på Allmogevägen.Det är oklart vilka skador cyklisten ådragit sig.Ambulans är på väg till platsen. Uppdatering: Cyklisten förs till sjukhus med okända skador.",
+           "link": "http://polisen.se/Skane/Aktuellt/Handelser/Skane/2015-03-04-0801-Trafikolycka-Trelleborg/",
+           "url" : "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=sweden+Allmogevägen+Trelleborg"
+
+},
+       {
+           "title": "Inbrott, Örkelljunga",
+           "time": "2015-03-04 06:07",
+           "location": "Bangatan+Örkelljunga",
+           "description": "Uppringare berättar att det varit inbrott i en matbutik på Bangatan. Det är inledningsvis oklart vad som stulits i lokalen. Patrull är på väg till platsen.",
+           "link": "http://polisen.se/Skane/Aktuellt/Handelser/Skane/2015-03-04-0607-Inbrott-Orkelljunga/",
+           "url" : "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=sweden+Bangatan+Örkelljunga"
+       }
+
+   ]
