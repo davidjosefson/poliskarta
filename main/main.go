@@ -58,6 +58,14 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 	if isPlaceValid(place) {
 		json := callExternalServicesAndCreateJson(place)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
+
+		//**********************************************
+		// Detta behövs medans vi köra allt på localhost,
+		// Dålig lösning som är osäker, men då kan vi
+		// i alla fall testa allt enkelt
+		//**********************************************
+		res.Header().Add("Access-Control-Allow-Origin", "*")
+
 		res.Write([]byte(json))
 	} else {
 		status := http.StatusBadRequest
