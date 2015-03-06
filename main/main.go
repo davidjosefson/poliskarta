@@ -101,7 +101,7 @@ func callExternalServicesAndCreateJson(place string) string {
 	policeRSSxml := callPoliceRSS(places[place])
 	policeEvents := policeXMLtoStructs(policeRSSxml)
 
-	findAndFillLocationWords(&policeEvents)
+	findAndFillPossibleLocationWords(&policeEvents)
 	findAndFillCoordinates(&policeEvents)
 
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
@@ -138,29 +138,31 @@ type PoliceEvents struct {
 }
 
 type PoliceEvent struct {
-	Title            string `xml:"title"`
-	Link             string `xml:"link"`
-	Description      string `xml:"description"`
-	HasLocation      bool
-	LocationWords    []string
-	URLifiedLocation string
-	Longitude        float32
-	Latitude         float32
+	Title                 string `xml:"title"`
+	Link                  string `xml:"link"`
+	Description           string `xml:"description"`
+	HasPossibleLocation   bool
+	PossibleLocationWords []string
+	HasCoordinates        bool
+	CoordinateSearchWords []string
+	Longitude             float32
+	Latitude              float32
 }
 
-func findAndFillLocationWords(policeEvents *PoliceEvents) {
+func findAndFillPossibleLocationWords(policeEvents *PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, _ := range eventsCopy.Events {
 		titleWords, err := filtertitle.FilterTitleWords(eventsCopy.Events[index].Title)
 
 		if err != nil {
-			eventsCopy.Events[index].HasLocation = false
+			eventsCopy.Events[index].HasPossibleLocation = false
 		} else {
-			eventsCopy.Events[index].HasLocation = true
+			eventsCopy.Events[index].HasPossibleLocation = true
 			descriptionWords := filterdescription.FilterDescriptionWords(eventsCopy.Events[index].Description)
-			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
-			AddURLifiedURL(&eventsCopy.Events[index])
+			removeDuplicatesAndCombinePossibleLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].PossibleLocationWords)
+			//Denna används inte längre
+			//AddURLifiedURL(&eventsCopy.Events[index])
 		}
 
 	}
@@ -168,20 +170,20 @@ func findAndFillLocationWords(policeEvents *PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func AddURLifiedURL(policeEvent *PoliceEvent) {
-	eventCopy := *policeEvent
-	str := ""
-	for _, word := range eventCopy.LocationWords {
-		str += word + " "
-	}
-	str = url.QueryEscape(str)
-	str = strings.TrimSuffix(str, "+")
+// func AddURLifiedURL(policeEvent *PoliceEvent) {
+// 	eventCopy := *policeEvent
+// 	str := ""
+// 	for _, word := range eventCopy.LocationWords {
+// 		str += word + " "
+// 	}
+// 	str = url.QueryEscape(str)
+// 	str = strings.TrimSuffix(str, "+")
 
-	eventCopy.URLifiedLocation = str
-	*policeEvent = eventCopy
-}
+// 	eventCopy.URLifiedLocation = str
+// 	*policeEvent = eventCopy
+// }
 
-func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
+func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
 	location := []string{}
 
 	for _, descWord := range descriptionWords {
@@ -218,19 +220,19 @@ TODO:
 
 func findAndFillCoordinates(policeEvents *PoliceEvents) {
 	eventsCopy := *policeEvents
-	singleQueryURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
+	singleQueryMapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
 
 	//Skapar en waitgroup som i slutet väntar tills alla goroutines är klara
 	var wg sync.WaitGroup
 
 	for index, event := range eventsCopy.Events {
-		if event.HasLocation {
+		if event.HasPossibleLocation {
 
 			//increments antalet goroutines den ska vänta på
 			wg.Add(1)
 
 			//skicka in wg till varje goroutine
-			go singleCallGeoLocationService(singleQueryURL+event.URLifiedLocation, &eventsCopy.Events[index], &wg)
+			go singleCallGeoLocationService(singleQueryMapURL, &eventsCopy.Events[index], &wg)
 		}
 
 	}
@@ -240,19 +242,55 @@ func findAndFillCoordinates(policeEvents *PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func singleCallGeoLocationService(url string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
-	httpResponse, _ := http.Get(url)
-	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
-	// xmlResponse := []byte("<response> <info> <statusCode>0</statusCode> <messages/> <copyright> <imageUrl>http://api.mqcdn.com/res/mqlogo.gif</imageUrl> <imageAltText>© 2015 MapQuest, Inc.</imageAltText> <text>© 2015 MapQuest, Inc.</text> </copyright> </info> <results> <result> <providedLocation> <location>Köping</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.579954,15.8790217384978,0,0|&center=59.579954,15.8790217384978&zoom=9&rand=582209154 ]]> </mapUrl> </location> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-2,59.5137434,15.9970475,0,0|&center=59.5137434,15.9970475&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> <result> <providedLocation> <location>Erikslund Västerås</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.6132838,16.4622554,0,0|&center=59.6132838,16.4622554&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> </results> <options> <maxResults>-1</maxResults> <thumbMaps>true</thumbMaps> <ignoreLatLngInput>false</ignoreLatLngInput> <boundingBox/> </options> </response>")
-	// fmt.Println(string(xmlResponse))
+func singleCallGeoLocationService(mapURL string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
+	eventCopy := *policeEvent
+	eventCopy.HasCoordinates = false
+	for i := 0; i < len(eventCopy.PossibleLocationWords); i++ {
+		wordsToSearchWith := URLifyString(eventCopy.PossibleLocationWords[i:])
 
-	defer httpResponse.Body.Close()
+		httpResponse, _ := http.Get(mapURL + wordsToSearchWith)
+		xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
 
-	geoLocation := geolocationXMLtoStructs(xmlResponse)
+		defer httpResponse.Body.Close()
 
-	fmt.Println(geoLocation.Locations)
+		geoLocation := geolocationXMLtoStructs(xmlResponse)
 
+		resultIsGood := evaluateGeoLocation(geoLocation)
+		fmt.Println("Searching with: ", wordsToSearchWith)
+		if resultIsGood {
+			eventCopy.HasCoordinates = true
+			eventCopy.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
+			eventCopy.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
+			eventCopy.CoordinateSearchWords = eventCopy.PossibleLocationWords[i:]
+			fmt.Println("Results are good: ", geoLocation.Locations)
+			break
+		} else {
+			fmt.Println("Results are bad: ", geoLocation.Locations)
+		}
+
+	}
+
+	*policeEvent = eventCopy
 	defer wg.Done()
+}
+
+func URLifyString(sliceToURLify []string) string {
+	str := ""
+	for _, word := range sliceToURLify {
+		str += word + " "
+	}
+	str = url.QueryEscape(str)
+	str = strings.TrimSuffix(str, "+")
+
+	return str
+}
+
+func evaluateGeoLocation(geoLocation GeoLocation) bool {
+	if geoLocation.Locations[0].LocationAlternatives != nil {
+		return true
+	} else {
+		return false
+	}
 }
 
 func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
@@ -272,9 +310,9 @@ type Location struct {
 }
 
 type LocationAlternative struct {
-	Quality   string `xml:"geocodeQuality"`
-	Latitude  string `xml:"displayLatLng>latLng>lat"`
-	Longitude string `xml:"displayLatLng>latLng>lng"`
+	Quality   string  `xml:"geocodeQuality"`
+	Latitude  float32 `xml:"displayLatLng>latLng>lat"`
+	Longitude float32 `xml:"displayLatLng>latLng>lng"`
 }
 
 // func batchCallGeoLocationService(url string) GeoLocationBatch {
@@ -326,85 +364,5 @@ type PoliceEvent struct {
 	Longitude        float32
 	Latitude         float32
 }
+
 */
-// func moviesearch(wr http.ResponseWriter, re *http.Request) {
-// 	//1. lookup omdb-rate (first result only)
-// 	//2. lookup rotten-rate (first result only)
-// 	//3. create html-page
-// 	//4. write html-page with wr
-
-// 	moviename := re.URL.Query().Get("name")
-
-// 	/*if moviename == "" {
-// 		wr.Write([]byte("Please enter a valid movie name"))
-// 		return
-// 	}*/
-
-// 	omovie := omdbquery(moviename)
-// 	log.Printf("ImdbMovie: %s, score: %s", omovie.Movietitle, omovie.Imdbscore)
-
-// 	rmovie := rottenquery(moviename)
-// 	log.Printf("RottenMovie-score: %d", rmovie.Movies[0].Ratings.Rottenscore)
-
-// 	combinedmoviedata := CombinedMovieData{omovie.Movietitle, omovie.Imdbscore, rmovie.Movies[0].Ratings.Rottenscore}
-
-// 	movietemplate, _ := template.ParseFiles("name.html")
-// 	movietemplate.Execute(wr, combinedmoviedata)
-// 	//template.Must(template.ParseFiles("name.html")).Execute(wr, combinedmoviedata)
-
-// }
-
-// func omdbquery(moviename string) OmdbMovie {
-// 	url := "http://www.omdbapi.com/?t=" + moviename + "&y&plot=short&r=json&tomatoes=true"
-
-// 	omdbresponse, err := http.Get(url)
-// 	if err != nil {
-// 		log.Println("Error on http.Get: ", err)
-// 		return OmdbMovie{}
-// 	}
-
-// 	defer omdbresponse.Body.Close()
-
-// 	var omdbmovie OmdbMovie
-
-// 	json.NewDecoder(omdbresponse.Body).Decode(&omdbmovie)
-
-// 	return omdbmovie
-// }
-
-// func rottenquery(moviename string) RottenMovie {
-// 	url := "http://api.rottentomatoes.com/api/public/v1.0/movies.json?apikey=***REMOVED***&q=" + moviename
-
-// 	rottenresponse, err := http.Get(url)
-// 	if err != nil {
-// 		log.Println("Error on http.Get: ", err)
-// 		return RottenMovie{}
-// 	}
-
-// 	defer rottenresponse.Body.Close()
-
-// 	var rottenmovie RottenMovie
-// 	json.NewDecoder(rottenresponse.Body).Decode(&rottenmovie)
-
-// 	return rottenmovie
-// }
-
-// type OmdbMovie struct {
-// 	Movietitle string `json:"Title"`
-// 	Imdbscore  string `json:"imdbRating"`
-// }
-
-// type RottenMovie struct {
-// 	Movies []struct {
-// 		MovieTitle string `json:"title"`
-// 		Ratings    struct {
-// 			Rottenscore int `json:"critics_score"`
-// 		} `json:"ratings"`
-// 	} `json:"movies"`
-// }
-
-// type CombinedMovieData struct {
-// 	Movietitle  string
-// 	Imdbscore   string
-// 	Rottenscore int
-// }
