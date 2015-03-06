@@ -1,4 +1,4 @@
-<div class="row" ng-show="{{event.HasLocation}}">
+<div class="row" ng-show="{{event.HasCoordinates}}">
     <!--    <h4 style="text-align: center; margin-top: 5px; padding-bottom: 10px;">{{event.Title}}</h4>-->
     <div class="col-md-6">
         <h4>{{event.Title}}</h4>
@@ -6,22 +6,17 @@
     </div>
 
     <div class="col-md-6">
-        <p><strong ng-repeat="word in event.LocationWords">{{word}} </strong>
+        <p><strong ng-repeat="word in event.PossibleLocationWords">{{word}} </strong>
         </p>
 
-        <img ng-src="{{event.URLifiedLocation | getStaticMapUrl }}" style="width:100%">
+        <img ng-src="{{ctrl.formatUrl(event.Latitude, event.Longitude)}}" style="width:100%">
 
-        <!--        <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center=malm%C3%B6+ellstorp&zoom=12&size=300x300&maptype=roadmap&markers=color:red%7ccolor:red%7clabel:c%7c55.605422,13.031286&sensor=false&key=***REMOVED***">-->
-        <!--
-        <iframe width="100%" height="100%" frameborder="0" style="border:0" ng-src="{{ event.URLifiedLocation | getMapUrl }}">
-        </iframe>
--->
         <p>Geocoding Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">
         </p>
     </div>
 </div>
 
-<div class="row" ng-hide="{{event.HasLocation}}">
+<div class="row" ng-hide="{{event.HasCoordinates}}">
     <div class="col-md-8">
         <h4>{{event.Title}}</h4>
         <p>{{event.Description}}</p>
