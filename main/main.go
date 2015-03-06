@@ -48,9 +48,6 @@ func main() {
 	})
 
 	m.Run()
-
-	// //http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))) //To find css-files in the css-folder
-	// http.ListenAndServe(":9090", nil)
 }
 
 func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params) {
