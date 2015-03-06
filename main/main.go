@@ -10,6 +10,7 @@ import (
 	"poliskarta/filterdescription"
 	"poliskarta/filtertitle"
 	"strings"
+	"sync"
 
 	"github.com/go-martini/martini"
 )
@@ -219,17 +220,27 @@ func findAndFillCoordinates(policeEvents *PoliceEvents) {
 	eventsCopy := *policeEvents
 	singleQueryURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
 
+	//Skapar en waitgroup som i slutet väntar tills alla goroutines är klara
+	var wg sync.WaitGroup
+
 	for index, event := range eventsCopy.Events {
 		if event.HasLocation {
-			go singleCallGeoLocationService(singleQueryURL+event.URLifiedLocation, &eventsCopy.Events[index])
+
+			//increments antalet goroutines den ska vänta på
+			wg.Add(1)
+
+			//skicka in wg till varje goroutine
+			go singleCallGeoLocationService(singleQueryURL+event.URLifiedLocation, &eventsCopy.Events[index], &wg)
 		}
 
 	}
 
+	//vänta tills alla är klara
+	wg.Wait()
 	*policeEvents = eventsCopy
 }
 
-func singleCallGeoLocationService(url string, policeEvent *PoliceEvent) {
+func singleCallGeoLocationService(url string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 	httpResponse, _ := http.Get(url)
 	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
 	// xmlResponse := []byte("<response> <info> <statusCode>0</statusCode> <messages/> <copyright> <imageUrl>http://api.mqcdn.com/res/mqlogo.gif</imageUrl> <imageAltText>© 2015 MapQuest, Inc.</imageAltText> <text>© 2015 MapQuest, Inc.</text> </copyright> </info> <results> <result> <providedLocation> <location>Köping</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.579954,15.8790217384978,0,0|&center=59.579954,15.8790217384978&zoom=9&rand=582209154 ]]> </mapUrl> </location> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-2,59.5137434,15.9970475,0,0|&center=59.5137434,15.9970475&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> <result> <providedLocation> <location>Erikslund Västerås</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.6132838,16.4622554,0,0|&center=59.6132838,16.4622554&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> </results> <options> <maxResults>-1</maxResults> <thumbMaps>true</thumbMaps> <ignoreLatLngInput>false</ignoreLatLngInput> <boundingBox/> </options> </response>")
@@ -240,6 +251,8 @@ func singleCallGeoLocationService(url string, policeEvent *PoliceEvent) {
 	geoLocation := geolocationXMLtoStructs(xmlResponse)
 
 	fmt.Println(geoLocation.Locations)
+
+	defer wg.Done()
 }
 
 func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
