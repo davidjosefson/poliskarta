@@ -4,6 +4,7 @@
         $sceDelegateProvider.resourceUrlWhitelist([
    // Allow same origin resource loads.
    'self',
+    'http://192.168.1.78:3000/',        
    // Allow loading from our assets domain. 
    'https://www.google.com/maps/embed/**']);
     });
@@ -35,7 +36,7 @@
         var ctrl = this;
         ctrl.events = {};
         this.selected = "skane";
-        this.url = "http://localhost:3000/";
+        this.url = "http://192.168.1.78:3000/";
         this.mapURL = "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=s";
 
         $http.get(this.url + this.selected).success(function (data) {
