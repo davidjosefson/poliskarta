@@ -209,12 +209,10 @@ func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descri
 
 /*
 TODO:
-	1. Joina goroutines (gemensam räknare, channel, eller nåt annat)
-	2. Fixa så att varje anrop kan söka om med färre ord, ifall den inte får ett bra resultat
-		- om den tex. bara får ut COUNTY, spara resultatet men gör om med färre för att se ifall man kan få
-			CITY eller helst STREET
-	3. Lägg till koordinaterna i policeEventsen och skicka till klienten
-	4. Koppla på GUI och casha in VG.
+	1. Refactor
+	2. Felhantering
+	3. Filtrering/begränsa antalet events som skickas tillbaka
+		3.1 Ingen parameter blir typ max 50st.
 
 */
 
