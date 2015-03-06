@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"encoding/xml"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
+	"poliskarta/externalservices"
 	"poliskarta/filterdescription"
 	"poliskarta/filtertitle"
-	"strings"
-	"sync"
+	"strconv"
 
 	"github.com/go-martini/martini"
 )
@@ -39,22 +37,40 @@ var places = map[string]string{
 	"ostergotland":   "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss",
 }
 
+/*
+TODO:
+	1. Refactor: filtermappar
+	2. Felhantering: polis/mapquest = nere, errors osv
+
+*/
+
 func main() {
 	m := martini.Classic()
 
 	m.Group("/", func(r martini.Router) {
 		r.Get(":place", allEvents)
-		r.Get(":place/(?P<number>10|[1-9])", singleEvent)
+		// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 	})
 
 	m.Run()
 }
 
 func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params) {
-	place := params["place"]
+	place, placeErr := isPlaceValid(params["place"])
+	limit, limitErr := isLimitParamValid(req.FormValue("limit"))
 
-	if isPlaceValid(place) {
-		json := callExternalServicesAndCreateJson(place)
+	if placeErr != nil {
+		status := http.StatusBadRequest
+		res.WriteHeader(status) // http-status 400
+		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), placeErr.Error())
+		res.Write([]byte(errorMessage))
+	} else if limitErr != nil {
+		status := http.StatusBadRequest
+		res.WriteHeader(status) // http-status 400
+		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
+		res.Write([]byte(errorMessage))
+	} else {
+		json := callExternalServicesAndCreateJson(place, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -65,11 +81,6 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		res.Header().Add("Access-Control-Allow-Origin", "*")
 
 		res.Write([]byte(json))
-	} else {
-		status := http.StatusBadRequest
-		res.WriteHeader(status) // http-status 400
-		errorMessage := fmt.Sprintf("%v: %v \n\n\"%v\" is not a valid place", status, http.StatusText(status), place)
-		res.Write([]byte(errorMessage))
 	}
 }
 
@@ -77,76 +88,51 @@ func singleEvent(params martini.Params) string {
 	return params["number"]
 }
 
-func isPlaceValid(parameter string) bool {
-	for place, _ := range places {
-		if place == parameter {
-			return true
+func isLimitParamValid(param string) (int, error) {
+	limit := 10
+	var err error
+	if param != "" {
+		limit, err = strconv.Atoi(param)
+		if err != nil {
+			err = errors.New(param + " is not a valid positive number")
+		}
+		if limit < 1 {
+			err = errors.New(param + " is not a positive number")
+		} else if limit > 50 {
+			limit = 50
 		}
 	}
-	return false
+
+	return limit, err
 }
 
-func callExternalServicesAndCreateJson(place string) string {
-	/*
-		1. Get Police RSS XML
-		2. Save each event as event-struct-array
-		3. Fill "searchwords"-fields by using the filters
-		4. Get google search results using "searchwords" - save coordinates as fields in struct
-		5. Convert search result as JSON and return string
-	*/
+func isPlaceValid(parameter string) (string, error) {
 
-	policeRSSxml := callPoliceRSS(places[place])
-	policeEvents := policeXMLtoStructs(policeRSSxml)
+	for place, _ := range places {
+		if place == parameter {
+			return place, nil
+		}
+	}
+	return "", errors.New(parameter + " is not a valid place")
 
-	findAndFillPossibleLocationWords(&policeEvents)
-	findAndFillCoordinates(&policeEvents)
+}
 
+func callExternalServicesAndCreateJson(place string, limit int) string {
+	policeEvents := externalservices.CallPoliceRSS(places[place], limit)
+	filterOutLocationsWords(&policeEvents)
+	externalservices.CallMapQuest(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return string(policeEventsAsJson)
 }
 
-func callPoliceRSS(url string) []byte {
-	httpResponse, _ := http.Get(url)
-	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
-
-	defer httpResponse.Body.Close()
-
-	return xmlResponse
-}
-
-func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
-	var policeEvents PoliceEvents
-	xml.Unmarshal(policeRSSxml, &policeEvents)
-
-	return policeEvents
-}
-
-func encodePoliceEventsToJSON(policeEvents PoliceEvents) []byte {
+func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte {
 	policeEventsAsJson, _ := json.Marshal(policeEvents)
 
 	return policeEventsAsJson
 }
 
-/* -- STRUCTS -- */
-
-type PoliceEvents struct {
-	Events []PoliceEvent `xml:"channel>item"`
-}
-
-type PoliceEvent struct {
-	Title                 string `xml:"title"`
-	Link                  string `xml:"link"`
-	Description           string `xml:"description"`
-	HasPossibleLocation   bool
-	PossibleLocationWords []string
-	HasCoordinates        bool
-	CoordinateSearchWords []string
-	Longitude             float32
-	Latitude              float32
-}
-
-func findAndFillPossibleLocationWords(policeEvents *PoliceEvents) {
+func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, _ := range eventsCopy.Events {
@@ -158,27 +144,12 @@ func findAndFillPossibleLocationWords(policeEvents *PoliceEvents) {
 			eventsCopy.Events[index].HasPossibleLocation = true
 			descriptionWords := filterdescription.FilterDescriptionWords(eventsCopy.Events[index].Description)
 			removeDuplicatesAndCombinePossibleLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].PossibleLocationWords)
-			//Denna används inte längre
-			//AddURLifiedURL(&eventsCopy.Events[index])
 		}
 
 	}
 
 	*policeEvents = eventsCopy
 }
-
-// func AddURLifiedURL(policeEvent *PoliceEvent) {
-// 	eventCopy := *policeEvent
-// 	str := ""
-// 	for _, word := range eventCopy.LocationWords {
-// 		str += word + " "
-// 	}
-// 	str = url.QueryEscape(str)
-// 	str = strings.TrimSuffix(str, "+")
-
-// 	eventCopy.URLifiedLocation = str
-// 	*policeEvent = eventCopy
-// }
 
 func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
 	location := []string{}
@@ -203,161 +174,3 @@ func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descri
 
 	*locationWords = location
 }
-
-/*
-TODO:
-	1. Refactor
-	2. Felhantering
-	3. Filtrering/begränsa antalet events som skickas tillbaka
-		3.1 Ingen parameter blir typ max 50st.
-
-*/
-
-func findAndFillCoordinates(policeEvents *PoliceEvents) {
-	eventsCopy := *policeEvents
-	singleQueryMapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
-
-	//Skapar en waitgroup som i slutet väntar tills alla goroutines är klara
-	var wg sync.WaitGroup
-
-	for index, event := range eventsCopy.Events {
-		if event.HasPossibleLocation {
-
-			//increments antalet goroutines den ska vänta på
-			wg.Add(1)
-
-			//skicka in wg till varje goroutine
-			go singleCallGeoLocationService(singleQueryMapURL, &eventsCopy.Events[index], &wg)
-		}
-
-	}
-
-	//vänta tills alla är klara
-	wg.Wait()
-	*policeEvents = eventsCopy
-}
-
-func singleCallGeoLocationService(mapURL string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
-	eventCopy := *policeEvent
-	eventCopy.HasCoordinates = false
-	for i := 0; i < len(eventCopy.PossibleLocationWords); i++ {
-		wordsToSearchWith := URLifyString(eventCopy.PossibleLocationWords[i:])
-
-		httpResponse, _ := http.Get(mapURL + wordsToSearchWith)
-		xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
-
-		defer httpResponse.Body.Close()
-
-		geoLocation := geolocationXMLtoStructs(xmlResponse)
-
-		resultIsGood := evaluateGeoLocation(geoLocation)
-		fmt.Println("Searching with: ", wordsToSearchWith)
-		if resultIsGood {
-			eventCopy.HasCoordinates = true
-			eventCopy.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
-			eventCopy.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
-			eventCopy.CoordinateSearchWords = eventCopy.PossibleLocationWords[i:]
-			fmt.Println("Results are good: ", geoLocation.Locations)
-			break
-		} else {
-			fmt.Println("Results are bad: ", geoLocation.Locations)
-		}
-
-	}
-
-	*policeEvent = eventCopy
-	defer wg.Done()
-}
-
-func URLifyString(sliceToURLify []string) string {
-	str := ""
-	for _, word := range sliceToURLify {
-		str += word + " "
-	}
-	str = url.QueryEscape(str)
-	str = strings.TrimSuffix(str, "+")
-
-	return str
-}
-
-func evaluateGeoLocation(geoLocation GeoLocation) bool {
-	if geoLocation.Locations[0].LocationAlternatives != nil {
-		return true
-	} else {
-		return false
-	}
-}
-
-func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
-	var geoLocation GeoLocation
-	xml.Unmarshal(XMLresponse, &geoLocation)
-
-	return geoLocation
-}
-
-type GeoLocation struct {
-	Locations []Location `xml:"results>result"`
-	// ThumbMaps string     `xml:"options>thumbMaps"`
-}
-
-type Location struct {
-	LocationAlternatives []LocationAlternative `xml:"locations>location"`
-}
-
-type LocationAlternative struct {
-	Quality   string  `xml:"geocodeQuality"`
-	Latitude  float32 `xml:"displayLatLng>latLng>lat"`
-	Longitude float32 `xml:"displayLatLng>latLng>lng"`
-}
-
-// func batchCallGeoLocationService(url string) GeoLocationBatch {
-// 	httpResponse, _ := http.Get(url)
-// 	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
-// 	// xmlResponse := []byte("<response> <info> <statusCode>0</statusCode> <messages/> <copyright> <imageUrl>http://api.mqcdn.com/res/mqlogo.gif</imageUrl> <imageAltText>© 2015 MapQuest, Inc.</imageAltText> <text>© 2015 MapQuest, Inc.</text> </copyright> </info> <results> <result> <providedLocation> <location>Köping</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.579954</lat> <lng>15.879022</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.579954,15.8790217384978,0,0|&center=59.579954,15.8790217384978&zoom=9&rand=582209154 ]]> </mapUrl> </location> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.513743</lat> <lng>15.997048</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-2,59.5137434,15.9970475,0,0|&center=59.5137434,15.9970475&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> <result> <providedLocation> <location>Erikslund Västerås</location> </providedLocation> <locations> <location> <street/> <postalCode/> <geocodeQuality>COUNTY</geocodeQuality> <geocodeQualityCode>A4XXX</geocodeQualityCode> <dragPoint>false</dragPoint> <sideOfStreet>N</sideOfStreet> <displayLatLng> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> </displayLatLng> <linkId>0</linkId> <type>s</type> <latLng> <lat>59.613284</lat> <lng>16.462255</lng> </latLng> <mapUrl> <![CDATA[http://open.mapquestapi.com/staticmap/v4/getmap?key=Fmjtd|luu82l6r20,8s=o5-94ralr&type=map&size=225,160&pois=purple-1,59.6132838,16.4622554,0,0|&center=59.6132838,16.4622554&zoom=9&rand=582209154 ]]> </mapUrl> </location> </locations> </result> </results> <options> <maxResults>-1</maxResults> <thumbMaps>true</thumbMaps> <ignoreLatLngInput>false</ignoreLatLngInput> <boundingBox/> </options> </response>")
-// 	fmt.Println(string(xmlResponse))
-
-// 	defer httpResponse.Body.Close()
-
-// 	geoLocationBatch := geolocationXMLtoStructs(xmlResponse)
-
-// 	return geoLocationBatch
-// }
-
-// func geolocationXMLtoStructs(XMLresponse []byte) GeoLocationBatch {
-// 	var geoLocationBatch GeoLocationBatch
-// 	xml.Unmarshal(XMLresponse, &geoLocationBatch)
-
-// 	return geoLocationBatch
-// }
-
-// type GeoLocationBatch struct {
-// 	Locations []Location `xml:"results>result"`
-// 	ThumbMaps string     `xml:"options>thumbMaps"`
-// }
-
-// type Location struct {
-// 	LocationAlternatives []LocationAlternative `xml:"locations>location"`
-// }
-
-// type LocationAlternative struct {
-// 	Quality   string `xml:"geocodeQuality"`
-// 	Latitude  string `xml:"displayLatLng>latLng>lat"`
-// 	Longitude string `xml:"displayLatLng>latLng>lng"`
-// }
-
-/*type PoliceEvents struct {
-	Events []PoliceEvent `xml:"channel>item"`
-}
-
-type PoliceEvent struct {
-	Title            string `xml:"title"`
-	Link             string `xml:"link"`
-	Description      string `xml:"description"`
-	HasLocation      bool
-	LocationWords    []string
-	URLifiedLocation string
-	Longitude        float32
-	Latitude         float32
-}
-
-*/
