@@ -4,7 +4,7 @@
         $sceDelegateProvider.resourceUrlWhitelist([
    // Allow same origin resource loads.
    'self',
-    'http://192.168.1.78:3000/',
+    'http://localhost:3000/',
    // Allow loading from our assets domain. 
    'https://www.google.com/maps/embed/**']);
     });
@@ -20,7 +20,7 @@
         var ctrl = this;
         ctrl.events = {};
         this.selected = "skane";
-        this.url = "http://192.168.1.78:3000/";
+        this.url = "http://localhost:3000/";
         this.mapURL = "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=s";
 
         $http.get(this.url + this.selected).success(function (data) {
@@ -44,6 +44,13 @@
             this.output += lat + "," + lng
 
             return this.output;
+        }
+        this.arraysEqual = function (a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (a.length != b.length) return false;
+
+            return true;
         }
 
     }]);

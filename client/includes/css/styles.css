@@ -11,6 +11,16 @@
     font-weight: 500;
 }
 
+span.glyphicon-time {
+    font-size: 1.4em;
+}
+span.glyphicon-alert {
+    font-size: 1.4em;
+}
+span.glyphicon-map-marker {
+    font-size: 1.4em;
+}
+
 .greentext {
     color: #528237 !important;
 }
@@ -49,4 +59,17 @@ body {
     background-color: #EDEDED;
     border: 0px;
     border-radius: 0px;
+}
+.list-inline li h3{
+    padding-bottom: 0px;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.search-info{
+        padding-bottom: 0px;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    margin-top: 0px;
 }
