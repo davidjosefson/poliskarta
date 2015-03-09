@@ -41,7 +41,6 @@ var places = map[string]string{
 TODO:
 	1. Refactor: filtermappar
 	2. Felhantering: polis/mapquest = nere, errors osv
-	3. Remove duplicates from strings in description-location-words
 
 */
 

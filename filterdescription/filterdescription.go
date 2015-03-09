@@ -41,6 +41,7 @@ func addWords(description string) []string {
 	for i := 1; i < len(descWords); i++ {
 		currentWord := descWords[i]
 		prevWord := descWords[i-1]
+		addWord := false
 
 		if currentWord == "" {
 			continue
@@ -53,32 +54,26 @@ func addWords(description string) []string {
 		}
 
 		//Check if previous word was added and current word is in valid road list
-		if prevWordAdded {
-			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+		if prevWordAdded && helperfunctions.TrimmedStringInSlice(currentWord, validWordsForPlaces) {
+			addWord = true
 
-			if helperfunctions.StringInSlice(currentWord, validWordsForPlaces) {
-				locationWords = append(locationWords, currentWord)
-				prevWordAdded = true
-				continue
-			} else {
-				prevWordAdded = false
-			}
+			//Add word if it starts with upper case or is a number
+		} else if helperfunctions.StartsWithUppercase(currentWord) || helperfunctions.WordIsNumber(currentWord) {
+			addWord = true
 		}
 
-		//Check if current word starts with uppercase
-		if helperfunctions.StartsWithUppercase(currentWord) {
+		//Dont add word if it has been added before
+		if helperfunctions.StringInSlice(currentWord, locationWords) {
+			addWord = false
+		}
+
+		if addWord {
 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
 			locationWords = append(locationWords, currentWord)
 			prevWordAdded = true
+
 		} else {
-			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-			//Add word if it is a number
-			if helperfunctions.WordIsNumber(currentWord) {
-				locationWords = append(locationWords, currentWord)
-				prevWordAdded = true
-			} else {
-				prevWordAdded = false
-			}
+			prevWordAdded = false
 		}
 
 	}
@@ -87,6 +82,72 @@ func addWords(description string) []string {
 
 	return locationWords
 }
+
+// func addWords(description string) []string {
+// 	prevWordAdded := false
+
+// 	//Split string on spaces - descWords = array
+// 	descWords := strings.Split(description, " ")
+
+// 	//Remove spaces from words
+// 	helperfunctions.TrimSpacesFromArray(&descWords)
+
+// 	//The resulting array of location words after filtering
+// 	locationWords := []string{}
+
+// 	//Loop through the array of words
+// 	for i := 1; i < len(descWords); i++ {
+// 		currentWord := descWords[i]
+// 		prevWord := descWords[i-1]
+// 		addWord := false;
+
+// 		if currentWord == "" {
+// 			continue
+// 		}
+
+// 		//Skip iteration if the previous word had a "." in the end
+// 		if strings.HasSuffix(prevWord, ".") {
+// 			prevWordAdded = false
+// 			continue
+// 		}
+
+// 		//Check if previous word was added and current word is in valid road list
+// 		if prevWordAdded {
+// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+
+// 			if helperfunctions.StringInSlice(currentWord, validWordsForPlaces) {
+// 				locationWords = append(locationWords, currentWord)
+// 				prevWordAdded = true
+// 				continue
+// 			} else {
+// 				prevWordAdded = false
+// 			}
+// 		}
+
+// 		//Check if current word starts with uppercase
+// 		if helperfunctions.StartsWithUppercase(currentWord) {
+// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+// 			locationWords = append(locationWords, currentWord)
+// 			prevWordAdded = true
+// 		} else {
+// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
+// 			//Add word if it is a number
+// 			if helperfunctions.WordIsNumber(currentWord) {
+// 				locationWords = append(locationWords, currentWord)
+// 				prevWordAdded = true
+// 			} else {
+// 				prevWordAdded = false
+// 			}
+// 		}
+
+// 		if(addWord)
+
+// 	}
+
+// 	removeInvalidWords(&locationWords)
+
+// 	return locationWords
+// }
 
 func removeInvalidWords(locationWords *[]string) {
 	sliceCopy := *locationWords
