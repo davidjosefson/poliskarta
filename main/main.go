@@ -41,7 +41,18 @@ var places = map[string]string{
 TODO:
 	1. Refactor: filtermappar
 	2. Felhantering: polis/mapquest = nere, errors osv
-
+	3. Stockholms-undantag
+	4. Norrbotten: det mesta är fel här! Fler generella regler?
+	5. Lägga till HATEOAS på /, där man får en lista över tillgängliga län
+		- API-länkar
+		- bra namn
+		- bra value-namn (utan åäö/mellanslag)
+		- koordinater till "mittpunkten"?
+	6. Optimera? Antingen:
+		- lägga in parameter ?no-coord=true  +  /getCoord/?Norra+gränges
+		- databas som sparar tidigare ord+koordinater, så att inget jobb/anrop görs utåt
+		- cache i 5 minuter som standard, eller en parameter för att alltid få senaste: ?no-cache=true
+	7. omstrukturera policeevents-structen så att den har objekt/grupper av saker
 */
 
 func main() {
