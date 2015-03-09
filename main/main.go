@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"poliskarta/externalservices"
-	"poliskarta/filterdescription"
-	"poliskarta/filtertitle"
+	"poliskarta/filter"
 	"strconv"
 
 	"github.com/go-martini/martini"
@@ -143,7 +142,7 @@ func filterOutTime(policeEvents *externalservices.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, event := range eventsCopy.Events {
-		eventsCopy.Events[index].Time = filtertitle.GetTime(event.Title)
+		eventsCopy.Events[index].Time = filter.GetTime(event.Title)
 	}
 
 	*policeEvents = eventsCopy
@@ -153,7 +152,7 @@ func filterOutEventType(policeEvents *externalservices.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, event := range eventsCopy.Events {
-		eventsCopy.Events[index].EventType = filtertitle.GetEventType(event.Title)
+		eventsCopy.Events[index].EventType = filter.GetEventType(event.Title)
 	}
 
 	*policeEvents = eventsCopy
@@ -168,13 +167,13 @@ func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, _ := range eventsCopy.Events {
-		titleWords, err := filtertitle.FilterTitleWords(eventsCopy.Events[index].Title)
+		titleWords, err := filter.FilterTitleWords(eventsCopy.Events[index].Title)
 
 		if err != nil {
 			eventsCopy.Events[index].HasPossibleLocation = false
 		} else {
 			eventsCopy.Events[index].HasPossibleLocation = true
-			descriptionWords := filterdescription.FilterDescriptionWords(eventsCopy.Events[index].Description)
+			descriptionWords := filter.FilterDescriptionWords(eventsCopy.Events[index].Description)
 			removeDuplicatesAndCombinePossibleLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].PossibleLocationWords)
 		}
 

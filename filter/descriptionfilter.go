@@ -1,4 +1,4 @@
-package filterdescription
+package filter
 
 import (
 	"poliskarta/helperfunctions"

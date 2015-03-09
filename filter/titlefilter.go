@@ -1,4 +1,4 @@
-package filtertitle
+package filter
 
 import (
 	"errors"
