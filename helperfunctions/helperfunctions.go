@@ -53,7 +53,20 @@ func StartsWithUppercase(str string) bool {
 
 }
 
+func TrimmedStringInSlice(str string, slice []string) bool {
+
+	TrimSuffixesFromWord(&str, ".", ",")
+
+	for _, strInSlice := range slice {
+		if str == strInSlice {
+			return true
+		}
+	}
+	return false
+}
+
 func StringInSlice(str string, slice []string) bool {
+
 	for _, strInSlice := range slice {
 		if str == strInSlice {
 			return true
@@ -72,6 +85,7 @@ func StringInSliceIgnoreCase(str string, slice []string) bool {
 }
 
 func WordIsNumber(word string) bool {
+	TrimSuffixesFromWord(&word, ".", ",")
 	_, err := strconv.Atoi(word)
 	return err == nil
 }
