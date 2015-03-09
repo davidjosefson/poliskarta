@@ -105,7 +105,7 @@ func encodeAreasToJSON() []byte {
 }
 
 func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params) {
-	place, placeErr := isPlaceValid(params["place"])
+	area, placeErr := isPlaceValid(params["place"])
 	limit, limitErr := isLimitParamValid(req.FormValue("limit"))
 
 	if placeErr != nil {
@@ -119,7 +119,7 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json := callExternalServicesAndCreateJson(place, limit)
+		json := callExternalServicesAndCreateJson(area.RssURL, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -155,14 +155,15 @@ func isLimitParamValid(param string) (int, error) {
 	return limit, err
 }
 
-func isPlaceValid(parameter string) (string, error) {
+func isPlaceValid(parameter string) (Area, error) {
 
 	for _, area := range areas.Areas {
 		if area.Value == parameter {
-			return area.Value, nil
+			return area, nil
 		}
 	}
-	return "", errors.New(parameter + " is not a valid place")
+
+	return Area{}, errors.New(parameter + " is not a valid place")
 
 }
 
