@@ -41,6 +41,7 @@ var places = map[string]string{
 TODO:
 	1. Refactor: filtermappar
 	2. Felhantering: polis/mapquest = nere, errors osv
+	3. Remove duplicates from strings in description-location-words
 
 */
 
@@ -120,12 +121,33 @@ func isPlaceValid(parameter string) (string, error) {
 func callExternalServicesAndCreateJson(place string, limit int) string {
 	policeEvents := externalservices.CallPoliceRSS(places[place], limit)
 	filterOutLocationsWords(&policeEvents)
+	filterOutTime(&policeEvents)
+	filterOutEventType(&policeEvents)
 	externalservices.CallMapQuest(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return string(policeEventsAsJson)
 }
 
+func filterOutTime(policeEvents *externalservices.PoliceEvents) {
+	eventsCopy := *policeEvents
+
+	for index, event := range eventsCopy.Events {
+		eventsCopy.Events[index].Time = filtertitle.GetTime(event.Title)
+	}
+
+	*policeEvents = eventsCopy
+}
+
+func filterOutEventType(policeEvents *externalservices.PoliceEvents) {
+	eventsCopy := *policeEvents
+
+	for index, event := range eventsCopy.Events {
+		eventsCopy.Events[index].EventType = filtertitle.GetEventType(event.Title)
+	}
+
+	*policeEvents = eventsCopy
+}
 func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte {
 	policeEventsAsJson, _ := json.Marshal(policeEvents)
 

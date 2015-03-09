@@ -57,3 +57,26 @@ func removeNonLocationWords(title *[]string) {
 func hasSammanfattning(title string) bool {
 	return strings.Contains(strings.ToLower(title), "sammanfattning")
 }
+
+func GetTime(title string) string {
+	titleWords := strings.SplitN(title, ",", 2)
+
+	//First word is always time
+	return titleWords[0]
+}
+
+func GetEventType(title string) string {
+	titleWords := strings.Split(title, ",")
+
+	eventType := ""
+	//Skip first word, which always is time, and last word which is location-info
+	for i := 1; i < len(titleWords)-1; i++ {
+		trimmedWord := strings.TrimSuffix(titleWords[i], ",")
+		trimmedWord = strings.TrimSpace(trimmedWord)
+		eventType += trimmedWord + " "
+	}
+
+	eventType = strings.TrimSpace(eventType)
+
+	return eventType
+}
