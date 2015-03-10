@@ -231,6 +231,7 @@ func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, erro
 	}
 
 	filter.FilterPoliceEvents(&policeEvents)
+	externalservices.CallMapQuest(&policeEvents)
 	policeEventsAsJson := encodePoliceEventToJSON(policeEvents.Events[0])
 
 	return policeEventsAsJson, err
