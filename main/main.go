@@ -80,7 +80,7 @@ func main() {
 
 	m.Get("/areas/:place", allEvents)
 	m.Get("/areas", allAreas)
-	m.Get("/areas/:place/events/:eventhash", singleEvent)
+	m.Get("/areas/:place/:eventid", singleEvent)
 	// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 
 	m.Run()
@@ -128,7 +128,7 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json := callPoliceRSSGetJSON(area.RssURL, limit)
+		json := callPoliceRSSGetJSONAllEvents(area.RssURL, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -155,8 +155,28 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 		- Jämför med param["eventhash"]
 		- Returnera JSON av
 	*/
+	area, placeErr := isPlaceValid(params["place"])
+	eventID, idParseErr := isEventIDValid(params["eventid"])
 
-	res.Write([]byte(params["eventhash"]))
+	if placeErr != nil {
+		res.WriteHeader(http.StatusBadRequest) // http-status 400
+		errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), placeErr.Error())
+		res.Write([]byte(errorMessage))
+	} else if idParseErr != nil {
+		res.WriteHeader(http.StatusBadRequest) // http-status 400
+		errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idParseErr.Error())
+		res.Write([]byte(errorMessage))
+	} else {
+		json, idNotFoundErr := callPoliceRSSGetJSONSingleEvent(area.RssURL, uint32(eventID))
+		if idNotFoundErr != nil {
+			res.WriteHeader(http.StatusBadRequest) // http-status 400
+			errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idNotFoundErr.Error())
+			res.Write([]byte(errorMessage))
+		} else {
+			res.Write(json)
+		}
+	}
+
 }
 
 func isLimitParamValid(param string) (int, error) {
@@ -178,7 +198,6 @@ func isLimitParamValid(param string) (int, error) {
 }
 
 func isPlaceValid(parameter string) (Area, error) {
-
 	for _, area := range areas.Areas {
 		if area.Value == parameter {
 			return area, nil
@@ -186,15 +205,35 @@ func isPlaceValid(parameter string) (Area, error) {
 	}
 
 	return Area{}, errors.New(parameter + " is not a valid place")
-
 }
 
-func callPoliceRSSGetJSON(place string, limit int) []byte {
-	policeEvents := externalservices.CallPoliceRSS(place, limit)
+func isEventIDValid(parameter string) (uint64, error) {
+	id, err := strconv.ParseUint(parameter, 10, 32)
+
+	if err != nil {
+		err = errors.New(parameter + " is not a valid event-ID")
+	}
+
+	return id, err
+}
+
+func callPoliceRSSGetJSONAllEvents(place string, limit int) []byte {
+	policeEvents := externalservices.CallPoliceRSSGetAll(place, limit)
 	filter.FilterPoliceEvents(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return policeEventsAsJson
+}
+func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, error) {
+	policeEvents, err := externalservices.CallPoliceRSSGetSingle(place, eventID)
+	if err != nil {
+		return []byte{}, err
+	}
+
+	filter.FilterPoliceEvents(&policeEvents)
+	policeEventsAsJson := encodePoliceEventToJSON(policeEvents.Events[0])
+
+	return policeEventsAsJson, err
 }
 
 // func callExternalServicesAndCreateJson(place string, limit int) string {
@@ -212,4 +251,10 @@ func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte
 	policeEventsAsJson, _ := json.Marshal(policeEvents)
 
 	return policeEventsAsJson
+}
+
+func encodePoliceEventToJSON(policeEvent externalservices.PoliceEvent) []byte {
+	policeEventAsJson, _ := json.Marshal(policeEvent)
+
+	return policeEventAsJson
 }
