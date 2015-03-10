@@ -230,12 +230,20 @@ func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, erro
 		return []byte{}, err
 	}
 
+	//Creating a waitgroup which will wait until all goroutines is finished
 	var wg sync.WaitGroup
-	wg.Add(2)
-	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
-	filter.FilterPoliceEvents(&policeEvents)
-	go externalservices.CallMapQuest(&policeEvents, &wg)
 
+	//How many goroutines it should wait on
+	wg.Add(2)
+
+	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
+
+	//Is needed before calling MapQuest
+	filter.FilterPoliceEvents(&policeEvents)
+
+	go externalservices.CallMapQuest(&policeEvents.Events[0], &wg)
+
+	//Wait for all goroutines to finish
 	wg.Wait()
 
 	policeEventsAsJson := encodePoliceEventToJSON(policeEvents.Events[0])

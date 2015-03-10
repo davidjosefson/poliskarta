@@ -9,11 +9,11 @@ import (
 )
 
 func CallPoliceScraping(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
-	copyEvent := *policeEvent
+	// eventCopy := *policeEvent
 	scrapeURL := "https://api.import.io/store/data/3c3e1355-d3c9-4047-bd2e-f86d36af29dc/_query?input/webpage/url="
 	apikey := "&_user=***REMOVED***&_apikey=***REMOVED***"
 
-	httpResult, httperr := http.Get(scrapeURL + copyEvent.Link + apikey)
+	httpResult, httperr := http.Get(scrapeURL + policeEvent.Link + apikey)
 
 	if httperr != nil {
 		fmt.Println("Importio http-error: " + httperr.Error())
@@ -27,11 +27,12 @@ func CallPoliceScraping(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 			var scrapedEvents ScrapedEvents
 			json.Unmarshal(body, &scrapedEvents)
 
-			copyEvent.DescriptionLong = scrapedEvents.Results[0].Result
+			policeEvent.DescriptionLong = scrapedEvents.Results[0].Result
 
 		}
 	}
-	*policeEvent = copyEvent
+	// eventCopy.LocationWords = append(eventCopy.LocationWords, "FICK INGA KOORD: Scrape")
+	// *policeEvent = eventCopy
 	defer wg.Done()
 }
 
