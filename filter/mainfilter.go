@@ -36,12 +36,9 @@ func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 	for index, _ := range eventsCopy.Events {
 		titleWords, err := FilterTitleWords(eventsCopy.Events[index].Title)
 
-		if err != nil {
-			eventsCopy.Events[index].HasPossibleLocation = false
-		} else {
-			eventsCopy.Events[index].HasPossibleLocation = true
+		if err == nil {
 			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].Description)
-			removeDuplicatesAndCombinePossibleLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].PossibleLocationWords)
+			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
 		}
 
 	}
@@ -49,7 +46,7 @@ func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
+func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
 	location := []string{}
 
 	for _, descWord := range descriptionWords {

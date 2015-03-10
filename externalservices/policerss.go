@@ -3,7 +3,6 @@ package externalservices
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"hash/fnv"
 	"io/ioutil"
 	"net/http"
@@ -33,16 +32,8 @@ func CallPoliceRSSGetSingle(url string, eventID uint32) (PoliceEvents, error) {
 	//Get police events
 	policeEvents := policeXMLtoStructs(xmlResponse)
 
-	fmt.Println("Printar andra eventet i GetSingle: ", policeEvents.Events[1])
-
 	//Check if eventID is found among the events
 	events, err := findEvent(eventID, policeEvents)
-
-	if err != nil {
-		fmt.Println("Findeventerror: ", err.Error())
-	} else {
-		fmt.Println("Printar events första event i GetSingle: ", events.Events[0])
-	}
 
 	return events, err
 }
@@ -83,12 +74,8 @@ func addHashAsID(policeEvents *PoliceEvents) {
 
 func findEvent(eventID uint32, policeEvents PoliceEvents) (PoliceEvents, error) {
 	var err error
-	fmt.Println("Every id in policeEvents")
 	for _, event := range policeEvents.Events {
-		fmt.Println("Går igenom events!")
-		fmt.Println("EventID: ", event.ID)
 		if eventID == event.ID {
-			fmt.Println(event)
 			events := PoliceEvents{}
 			events.Events = append(events.Events, event)
 			return events, err

@@ -5,16 +5,14 @@ type PoliceEvents struct {
 }
 
 type PoliceEvent struct {
-	ID                    uint32 `json: "ID, string"`
+	ID                    uint32 `json:"ID,string"`
 	Title                 string `xml:"title"`
 	Link                  string `xml:"link"`
 	Description           string `xml:"description"`
 	Time                  string
 	EventType             string
-	HasPossibleLocation   bool
-	PossibleLocationWords []string
-	HasCoordinates        bool
-	CoordinateSearchWords []string
-	Longitude             float32
-	Latitude              float32
+	LocationWords         []string `json:",omitempty"`
+	CoordinateSearchWords []string `json:",omitempty"`
+	Longitude             float32  `json:",omitempty"`
+	Latitude              float32  `json:",omitempty"`
 }

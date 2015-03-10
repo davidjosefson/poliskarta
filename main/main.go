@@ -237,17 +237,6 @@ func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, erro
 	return policeEventsAsJson, err
 }
 
-// func callExternalServicesAndCreateJson(place string, limit int) string {
-// 	policeEvents := externalservices.CallPoliceRSS(place, limit)
-// 	filterOutLocationsWords(&policeEvents)
-// 	filterOutTime(&policeEvents)
-// 	filterOutEventType(&policeEvents)
-// 	externalservices.CallMapQuest(&policeEvents)
-// 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
-
-// 	return string(policeEventsAsJson)
-// }
-
 func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte {
 	policeEventsAsJson, _ := json.Marshal(policeEvents)
 

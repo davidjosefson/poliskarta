@@ -17,7 +17,7 @@ func CallMapQuest(policeEvents *PoliceEvents) {
 	var wg sync.WaitGroup
 
 	for index, event := range eventsCopy.Events {
-		if event.HasPossibleLocation {
+		if len(event.LocationWords) > 0 {
 
 			//increments antalet goroutines den ska vänta på
 			wg.Add(1)
@@ -35,9 +35,8 @@ func CallMapQuest(policeEvents *PoliceEvents) {
 
 func singleCallGeoLocationService(mapURL string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 	eventCopy := *policeEvent
-	eventCopy.HasCoordinates = false
-	for i := 0; i < len(eventCopy.PossibleLocationWords); i++ {
-		wordsToSearchWith := URLifyString(eventCopy.PossibleLocationWords[i:])
+	for i := 0; i < len(eventCopy.LocationWords); i++ {
+		wordsToSearchWith := URLifyString(eventCopy.LocationWords[i:])
 
 		httpResponse, _ := http.Get(mapURL + wordsToSearchWith)
 		xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
@@ -49,10 +48,9 @@ func singleCallGeoLocationService(mapURL string, policeEvent *PoliceEvent, wg *s
 		resultIsGood := evaluateGeoLocation(geoLocation)
 		// fmt.Println("Searching with: ", wordsToSearchWith)
 		if resultIsGood {
-			eventCopy.HasCoordinates = true
 			eventCopy.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
 			eventCopy.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
-			eventCopy.CoordinateSearchWords = eventCopy.PossibleLocationWords[i:]
+			eventCopy.CoordinateSearchWords = eventCopy.LocationWords[i:]
 			// fmt.Println("Results are good: ", geoLocation.Locations)
 			break
 		} else {
