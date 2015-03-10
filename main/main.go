@@ -128,7 +128,7 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json := callPoliceRSSGetJSONAllEvents(area.RssURL, limit)
+		json := callPoliceRSSGetJSONAllEvents(area.RssURL, area.Value, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -167,7 +167,7 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idParseErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json, idNotFoundErr := callPoliceRSSGetJSONSingleEvent(area.RssURL, uint32(eventID))
+		json, idNotFoundErr := callPoliceRSSGetJSONSingleEvent(area.RssURL, area.Value, uint32(eventID))
 		if idNotFoundErr != nil {
 			res.WriteHeader(http.StatusBadRequest) // http-status 400
 			errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idNotFoundErr.Error())
@@ -217,15 +217,15 @@ func isEventIDValid(parameter string) (uint64, error) {
 	return id, err
 }
 
-func callPoliceRSSGetJSONAllEvents(place string, limit int) []byte {
-	policeEvents := externalservices.CallPoliceRSSGetAll(place, limit)
+func callPoliceRSSGetJSONAllEvents(url string, area string, limit int) []byte {
+	policeEvents := externalservices.CallPoliceRSSGetAll(url, area, limit)
 	filter.FilterPoliceEvents(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return policeEventsAsJson
 }
-func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, error) {
-	policeEvents, err := externalservices.CallPoliceRSSGetSingle(place, eventID)
+func callPoliceRSSGetJSONSingleEvent(url string, area string, eventID uint32) ([]byte, error) {
+	policeEvents, err := externalservices.CallPoliceRSSGetSingle(url, area, eventID)
 	if err != nil {
 		return []byte{}, err
 	}

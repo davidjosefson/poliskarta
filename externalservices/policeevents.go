@@ -8,6 +8,8 @@ type PoliceEvent struct {
 	ID                    uint32 `json:"ID,string"`
 	Title                 string `xml:"title"`
 	Link                  string `xml:"link"`
+	EventURI              string
+	AreaValue             string
 	DescriptionShort      string `xml:"description"`
 	DescriptionLong       string `json:",omitempty"`
 	Time                  string
