@@ -2,6 +2,7 @@ package externalservices
 
 import (
 	"encoding/xml"
+	"hash/adler32"
 	"io/ioutil"
 	"net/http"
 )
@@ -22,6 +23,7 @@ func CallPoliceRSS(url string, numEvents int) PoliceEvents {
 func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
 	var policeEvents PoliceEvents
 	xml.Unmarshal(policeRSSxml, &policeEvents)
+	addHashAsID(&policeEvents)
 
 	return policeEvents
 }
@@ -40,4 +42,13 @@ func limitNumOfPoliceEvents(policeEvents *PoliceEvents, numEvents int) {
 	}
 
 	*policeEvents = copyEvents
+}
+
+func addHashAsID(policeEvents *PoliceEvents) {
+	eventsCopy := *policeEvents
+	for index, event := range eventsCopy.Events {
+		hash := adler32.Checksum([]byte(event.Link))
+		eventsCopy.Events[index].ID = hash
+	}
+	*policeEvents = eventsCopy
 }

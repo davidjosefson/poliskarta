@@ -5,6 +5,7 @@ type PoliceEvents struct {
 }
 
 type PoliceEvent struct {
+	ID                    uint32
 	Title                 string `xml:"title"`
 	Link                  string `xml:"link"`
 	Description           string `xml:"description"`
