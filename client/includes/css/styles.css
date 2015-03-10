@@ -12,11 +12,13 @@
 }
 
 span.glyphicon-time {
-    font-size: 1.4em;
+    font-size: 1.2em;
 }
+
 span.glyphicon-alert {
     font-size: 1.4em;
 }
+
 span.glyphicon-map-marker {
     font-size: 1.4em;
 }
@@ -42,8 +44,6 @@ span.glyphicon-map-marker {
     border-radius: 0px;
 }
 
-
-
 body {
     background-color: #666;
 }
@@ -60,15 +60,34 @@ body {
     border: 0px;
     border-radius: 0px;
 }
-.list-inline li h3{
+
+.list-inline li h3 {
     padding-bottom: 0px;
     padding-top: 0px;
     margin-bottom: 0px;
     margin-top: 0px;
 }
 
-.search-info{
-        padding-bottom: 0px;
+.list-inline li h4 {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+#event-header {
+    float: none !important;
+    text-align: center !important;
+    padding-bottom: 5px;
+    border-bottom: 5px solid #666;
+}
+#event-header-row {
+
+    padding-bottom: 20px;
+}
+
+.search-info {
+    padding-bottom: 0px;
     padding-top: 0px;
     margin-bottom: 0px;
     margin-top: 0px;

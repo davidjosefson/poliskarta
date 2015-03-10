@@ -32,39 +32,14 @@
         <div class="main-header">
             <div class="row">
 
+
                 <div class="col-md-8">
-                    <h1>Händelser i {{ctrl.selected}}</h1>
+                    <h1>Händelser i {{ctrl.selectedArea.name}}</h1>
                 </div>
                 <div class="col-md-2">
                     <h4>Välj län</h4>
-                    <select ng-init="selected = 'skane'" ng-model="selected" ng-change="ctrl.getData(selected)">
-                        <option value="stockholm">Stockholm</option>
-                        <option value="skane">Skåne</option>
-                        <option value="halland">Halland</option>
-                        <option value="kronoberg">Kronoberg</option>
-                        <option value="blekinge">Blekinge</option>
-                        <option value="dalarna">Dalarna</option>
-                        <option value="gotland">Gotland</option>
-                        <option value="gavleborg">Gävleborg</option>
-                        <option value="halland">Halland</option>
-                        <option value="jamtland">Jamtland</option>
-                        <option value="jonkoping">Jönkoping</option>
-                        <option value="kalmar">Kalmar</option>
-                        <option value="kronoberg">Kronoberg</option>
-                        <option value="norrbotten">Norrbotten</option>
-                        <option value="skane">Skåne</option>
-                        <option value="stockholm">Stockholm</option>
-                        <option value="sodermanland">Södermanland</option>
-                        <option value="uppsala">Uppsala</option>
-                        <option value="varmland">Värmland</option>
-                        <option value="vasterbotten">Västerbotten</option>
-                        <option value="vasternorrland">Västernorrland</option>
-                        <option value="vastmanland">Västmanland</option>
-                        <option value="vastragotaland">Västragötaland</option>
-                        <option value="orebro">Örebro</option>
-                        <option value="ostergotland">Östergötland</option>
-                    </select>
-
+                    <select ng-change="ctrl.getAllEvents()" ng-model="ctrl.selectedArea" ng-options="area as area.name for area in ctrl.areas.areas"></select>
+                    
                 </div>
                 <div class="col-md-2"></div>
 
