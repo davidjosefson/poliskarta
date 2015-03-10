@@ -8,6 +8,7 @@ import (
 	"poliskarta/externalservices"
 	"poliskarta/filter"
 	"strconv"
+	"sync"
 
 	"github.com/go-martini/martini"
 )
@@ -229,9 +230,14 @@ func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, erro
 		return []byte{}, err
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
 	filter.FilterPoliceEvents(&policeEvents)
-	externalservices.CallMapQuest(&policeEvents)
-	externalservices.CallPoliceScraping(&policeEvents.Events[0])
+	go externalservices.CallMapQuest(&policeEvents, &wg)
+
+	wg.Wait()
+
 	policeEventsAsJson := encodePoliceEventToJSON(policeEvents.Events[0])
 
 	return policeEventsAsJson, err

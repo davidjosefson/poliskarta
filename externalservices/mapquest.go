@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func CallMapQuest(policeEvents *PoliceEvents) {
+func CallMapQuest(policeEvents *PoliceEvents, wg2 *sync.WaitGroup) {
 	eventsCopy := *policeEvents
 	singleQueryMapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
 
@@ -31,6 +31,7 @@ func CallMapQuest(policeEvents *PoliceEvents) {
 	//vänta tills alla är klara
 	wg.Wait()
 	*policeEvents = eventsCopy
+	defer wg2.Done()
 }
 
 func singleCallGeoLocationService(mapURL string, policeEvent *PoliceEvent, wg *sync.WaitGroup) {
