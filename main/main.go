@@ -72,7 +72,6 @@ TODO:
 		- motivering: bättre prestanda, kan göra anrop asynkront i klienten för att fylla på data
 		- minus: görs som mest 51 anrop till polisens rss istället för 1 enda.
 
-
 */
 
 func main() {
@@ -232,6 +231,7 @@ func callPoliceRSSGetJSONSingleEvent(place string, eventID uint32) ([]byte, erro
 
 	filter.FilterPoliceEvents(&policeEvents)
 	externalservices.CallMapQuest(&policeEvents)
+	externalservices.CallPoliceScraping(&policeEvents.Events[0])
 	policeEventsAsJson := encodePoliceEventToJSON(policeEvents.Events[0])
 
 	return policeEventsAsJson, err
