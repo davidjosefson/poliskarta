@@ -65,6 +65,14 @@ TODO:
 		- cache i 5 minuter som standard, eller en parameter för att alltid få senaste: ?no-cache=true
 	7. omstrukturera policeevents-structen så att den har objekt/grupper av saker
 	8. Lägg till en resurs för /event/:eventid
+
+	Gör om strukturen lite:
+	- Låt anrop till /areas/skane/ inte ge koordinater, men en hash-länk till enskilda event
+	- Låt anrop till /areas/skane/87912 ge all info som fanns på skane för eventet PLUS koord. och scrapingdata
+		- motivering: bättre prestanda, kan göra anrop asynkront i klienten för att fylla på data
+		- minus: görs som mest 51 anrop till polisens rss istället för 1 enda.
+
+
 */
 
 func main() {
@@ -72,6 +80,7 @@ func main() {
 
 	m.Get("/areas/:place", allEvents)
 	m.Get("/areas", allAreas)
+	m.Get("/areas/:place/events/:eventhash", singleEvent)
 	// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 
 	m.Run()
@@ -119,7 +128,7 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json := callExternalServicesAndCreateJson(area.RssURL, limit)
+		json := callPoliceRSSGetJSON(area.RssURL, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -129,12 +138,25 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		//**********************************************
 		res.Header().Add("Access-Control-Allow-Origin", "*")
 
-		res.Write([]byte(json))
+		res.Write(json)
 	}
 }
 
-func singleEvent(params martini.Params) string {
-	return params["number"]
+// Is for: r.Get(":place/(?P<number>10|[1-9])", singleEvent)
+// func singleEvent(params martini.Params) string {
+// 	return params["number"]
+// }
+
+func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Params) {
+	/*
+		- Kolla så att place är valid
+		- Gör http-anrop hos polisen med place
+		- Hasha alla polis-urler
+		- Jämför med param["eventhash"]
+		- Returnera JSON av
+	*/
+
+	res.Write([]byte(params["eventhash"]))
 }
 
 func isLimitParamValid(param string) (int, error) {
@@ -167,81 +189,27 @@ func isPlaceValid(parameter string) (Area, error) {
 
 }
 
-func callExternalServicesAndCreateJson(place string, limit int) string {
+func callPoliceRSSGetJSON(place string, limit int) []byte {
 	policeEvents := externalservices.CallPoliceRSS(place, limit)
-	filterOutLocationsWords(&policeEvents)
-	filterOutTime(&policeEvents)
-	filterOutEventType(&policeEvents)
-	externalservices.CallMapQuest(&policeEvents)
+	filter.FilterPoliceEvents(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
-
-	return string(policeEventsAsJson)
-}
-
-func filterOutTime(policeEvents *externalservices.PoliceEvents) {
-	eventsCopy := *policeEvents
-
-	for index, event := range eventsCopy.Events {
-		eventsCopy.Events[index].Time = filter.GetTime(event.Title)
-	}
-
-	*policeEvents = eventsCopy
-}
-
-func filterOutEventType(policeEvents *externalservices.PoliceEvents) {
-	eventsCopy := *policeEvents
-
-	for index, event := range eventsCopy.Events {
-		eventsCopy.Events[index].EventType = filter.GetEventType(event.Title)
-	}
-
-	*policeEvents = eventsCopy
-}
-func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte {
-	policeEventsAsJson, _ := json.Marshal(policeEvents)
 
 	return policeEventsAsJson
 }
 
-func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
-	eventsCopy := *policeEvents
+// func callExternalServicesAndCreateJson(place string, limit int) string {
+// 	policeEvents := externalservices.CallPoliceRSS(place, limit)
+// 	filterOutLocationsWords(&policeEvents)
+// 	filterOutTime(&policeEvents)
+// 	filterOutEventType(&policeEvents)
+// 	externalservices.CallMapQuest(&policeEvents)
+// 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
-	for index, _ := range eventsCopy.Events {
-		titleWords, err := filter.FilterTitleWords(eventsCopy.Events[index].Title)
+// 	return string(policeEventsAsJson)
+// }
 
-		if err != nil {
-			eventsCopy.Events[index].HasPossibleLocation = false
-		} else {
-			eventsCopy.Events[index].HasPossibleLocation = true
-			descriptionWords := filter.FilterDescriptionWords(eventsCopy.Events[index].Description)
-			removeDuplicatesAndCombinePossibleLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].PossibleLocationWords)
-		}
+func encodePoliceEventsToJSON(policeEvents externalservices.PoliceEvents) []byte {
+	policeEventsAsJson, _ := json.Marshal(policeEvents)
 
-	}
-
-	*policeEvents = eventsCopy
-}
-
-func removeDuplicatesAndCombinePossibleLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
-	location := []string{}
-
-	for _, descWord := range descriptionWords {
-		location = append(location, descWord)
-	}
-
-	wordAlreadyExists := false
-
-	for _, titleWord := range titleWords {
-		for _, locationWord := range location {
-			if titleWord == locationWord {
-				wordAlreadyExists = true
-				break
-			}
-		}
-		if !wordAlreadyExists {
-			location = append(location, titleWord)
-		}
-	}
-
-	*locationWords = location
+	return policeEventsAsJson
 }
