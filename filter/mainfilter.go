@@ -37,7 +37,7 @@ func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 		titleWords, err := FilterTitleWords(eventsCopy.Events[index].Title)
 
 		if err == nil {
-			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].Description)
+			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].DescriptionShort)
 			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
 		}
 

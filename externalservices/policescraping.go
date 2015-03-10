@@ -26,7 +26,7 @@ func CallPoliceScraping(policeEvent *PoliceEvent) {
 			var scrapedEvents ScrapedEvents
 			json.Unmarshal(body, &scrapedEvents)
 
-			copyEvent.Description = scrapedEvents.Results[0].Result
+			copyEvent.DescriptionLong = scrapedEvents.Results[0].Result
 
 		}
 	}
