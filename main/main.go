@@ -51,7 +51,6 @@ var areasArray = []Area{
 
 /*
 TODO:
-	1. Refactor: filtermappar
 	2. Felhantering: polis/mapquest = nere, errors osv
 	3. Stockholms-undantag
 	4. Norrbotten: det mesta är fel här! Fler generella regler?
@@ -65,14 +64,8 @@ TODO:
 		- databas som sparar tidigare ord+koordinater, så att inget jobb/anrop görs utåt
 		- cache i 5 minuter som standard, eller en parameter för att alltid få senaste: ?no-cache=true
 	7. omstrukturera policeevents-structen så att den har objekt/grupper av saker
-	8. Lägg till en resurs för /event/:eventid
-
-	Gör om strukturen lite:
-	- Låt anrop till /areas/skane/ inte ge koordinater, men en hash-länk till enskilda event
-	- Låt anrop till /areas/skane/87912 ge all info som fanns på skane för eventet PLUS koord. och scrapingdata
-		- motivering: bättre prestanda, kan göra anrop asynkront i klienten för att fylla på data
-		- minus: görs som mest 51 anrop till polisens rss istället för 1 enda.
-
+	8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
+	så de inte behöver ligga dubbelt
 */
 
 func main() {
