@@ -173,6 +173,13 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 			errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idNotFoundErr.Error())
 			res.Write([]byte(errorMessage))
 		} else {
+			res.Header().Add("Content-type", "application/json; charset=utf-8")
+			//**********************************************
+			// Detta behövs medans vi köra allt på localhost,
+			// Dålig lösning som är osäker, men då kan vi
+			// i alla fall testa allt enkelt
+			//**********************************************
+			res.Header().Add("Access-Control-Allow-Origin", "*")
 			res.Write(json)
 		}
 	}
