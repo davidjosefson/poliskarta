@@ -1,2 +1,37 @@
 /* app css stylesheet */
-.angular-google-map-container { height: 400px; width: 800px;}
+.angular-google-map {
+	height: 100%;
+}
+.angular-google-map-container { 
+	height:100%;
+	/*width: 100%;*/
+}
+
+ul {
+	margin-top: 30px;
+}
+
+li {
+	list-style-type: none;
+/*	  border: 0 #f2f2f2 solid;
+  border-bottom-width: 1px;*/
+}
+
+li>a{
+	padding: 5px 10px;
+	display: block;
+}
+
+html,body{
+  	height:100%;
+}
+
+#map {
+	width:66.6666%;
+    height: calc(100%-0);
+    position:absolute;
+    right:0px;
+    top:0px;
+    bottom:0;
+    overflow:hidden;
+}

@@ -161,20 +161,6 @@ bigmapControllers.controller("mainController", ["uiGmapGoogleMapApi", "$scope", 
     };
 
 
-    vm.marker2 = {
-        id: 2,
-        latitude: 45.240727,
-        longitude: -73.537372,
-        title: "marker2 xxxxxxxxxxxxxx",
-        show: true
-    };
-
-    vm.marker2.onClick = function() {
-        vm.marker2.show = vm.marker2.show;
-    };
-
-
-
     vm.windowOptions = {
         visible: false
     };
