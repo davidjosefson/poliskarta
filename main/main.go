@@ -19,34 +19,37 @@ type AreasStruct struct {
 	Areas []Area `json:"areas"`
 }
 type Area struct {
-	Name   string `json:"name"`
-	Value  string `json:"value"`
-	Url    string `json:"url"`
-	RssURL string `json:"-"`
+	Name            string  `json:"name"`
+	Value           string  `json:"value"`
+	Url             string  `json:"url"`
+	RssURL          string  `json:"-"`
+	Latitude        float32 `json:"latitude"`
+	Longitude       float32 `json:"longitude"`
+	GoogleZoomLevel int     `json:"zoomlevel"`
 }
 
 var areasArray = []Area{
-	Area{"Blekinge", "blekinge", "/blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss"},
-	Area{"Dalarna", "dalarna", "/dalarna", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss"},
-	Area{"Gotland", "gotland", "/gotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss"},
-	Area{"Gävleborg", "gavleborg", "/gavleborg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss"},
-	Area{"Halland", "halland", "/halland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss"},
-	Area{"Jämtland", "jamtland", "/jamtland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss"},
-	Area{"Jönköping", "jonkoping", "/jonkoping", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss"},
-	Area{"Kalmar", "kalmar", "/kalmar", "https://polisen.se/Kalmar_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Kalmar-lan/?feed=rss"},
-	Area{"Kronoberg", "kronoberg", "/kronoberg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss"},
-	Area{"Norrbotten", "norrbotten", "/norrbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss"},
-	Area{"Skåne", "skane", "/skane", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss"},
-	Area{"Stockholm", "stockholm", "/stockholm", "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss"},
-	Area{"Södermanland", "sodermanland", "/sodermanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss"},
-	Area{"Uppsala", "uppsala", "/uppsala", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala?feed=rss"},
-	Area{"Värmland", "varmland", "/varmland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss"},
-	Area{"Västerbotten", "vasterbotten", "/vasterbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss"},
-	Area{"Västernorrland", "vasternorrland", "/vasternorrland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss"},
-	Area{"Västmanland", "vastmanland", "/vastmanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss"},
-	Area{"Västra Götaland", "vastragotaland", "/vastragotaland", "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss"},
-	Area{"Örebro", "orebro", "/orebro", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro?feed=rss"},
-	Area{"Östergötland", "ostergotland", "/ostergotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss"},
+	Area{"Blekinge", "blekinge", "/blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss", 56.283333, 15.116667, 8},
+	Area{"Dalarna", "dalarna", "/dalarna", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss", 60.678611, 15.600556, 8},
+	Area{"Gotland", "gotland", "/gotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss", 57.499167, 18.509444, 8},
+	Area{"Gävleborg", "gavleborg", "/gavleborg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss", 60.780556, 16.655278, 8},
+	Area{"Halland", "halland", "/halland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss", 56.716667, 12.821111, 8},
+	Area{"Jämtland", "jamtland", "/jamtland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss", 63.283056, 14.238333, 8},
+	Area{"Jönköping", "jonkoping", "/jonkoping", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss", 57.750000, 14.200000, 8},
+	Area{"Kalmar", "kalmar", "/kalmar", "https://polisen.se/Kalmar_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Kalmar-lan/?feed=rss", 56.733333, 15.9, 8},
+	Area{"Kronoberg", "kronoberg", "/kronoberg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss", 56.79, 14.44, 8},
+	Area{"Norrbotten", "norrbotten", "/norrbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss", 67.135833, 18.501111, 8},
+	Area{"Skåne", "skane", "/skane", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss", 56, 13.45, 8},
+	Area{"Stockholm", "stockholm", "/stockholm", "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss", 59.333333, 18.166667, 8},
+	Area{"Södermanland", "sodermanland", "/sodermanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss", 58.771111, 16.869444, 8},
+	Area{"Uppsala", "uppsala", "/uppsala", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala?feed=rss", 59.858333, 17.65, 8},
+	Area{"Värmland", "varmland", "/varmland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss", 59.425556, 13.271389, 8},
+	Area{"Västerbotten", "vasterbotten", "/vasterbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss", 64.344722, 18.314167, 8},
+	Area{"Västernorrland", "vasternorrland", "/vasternorrland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss", 62.733333, 16.933333, 8},
+	Area{"Västmanland", "vastmanland", "/vastmanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss", 59.645556, 16.424444, 8},
+	Area{"Västra Götaland", "vastragotaland", "/vastragotaland", "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss", 58.216944, 11.733333, 8},
+	Area{"Örebro", "orebro", "/orebro", "https://polisen.se/Orebro_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro-lan/?feed=rss", 59.266667, 15.216667, 8},
+	Area{"Östergötland", "ostergotland", "/ostergotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss", 58.410447, 15.613558, 8},
 }
 
 /*
