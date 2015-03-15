@@ -1,0 +1,50 @@
+<div ng-controller="mainController as main">
+    <div class="container">
+        <div class="starter-template">
+            <h1>Kartprototyp</h1>
+            <p>{{main.test}}</p>
+            <p>Parametrar: {{main.params}}</p>
+            <p>SelectedArea: {{main.selectedArea}}</p>
+
+            <a ng-repeat="area in main.areas.areas" href="#{{area.url}}">{{area.name}}</a>
+        </div>
+    </div>
+    <div class="container">
+        <!-- <ui-gmap-google-map center='main.map.center' zoom='main.map.zoom' events='main.map.events'> -->
+        <ui-gmap-google-map center='main.map.center' zoom='main.map.zoom' ng-click='main.closeAll()'>
+
+            <ui-gmap-marker ng-repeat="marker in main.markerlist " coords="marker.coords " idkey="marker.id " click="marker.onClick">
+                <ui-gmap-window show="marker.show ">
+                    <div>
+                        <p>{{marker.title}}</p>
+                        <p>{{marker.description}}</p>
+                    </div>
+                </ui-gmap-window>
+            </ui-gmap-marker>
+
+            <!-- <ui-gmap-markers models=" mymarkers " coords=" 'self' " icon=" 'icon' ">
+                <ui-gmap-windows show="show ">
+                    <div ng-non-bindable>{{title}}</div>
+                </ui-gmap-windows>
+            </ui-gmap-markers> -->
+
+            <ui-gmap-marker coords="main.marker0.coords " options="main.marker0.options " idkey="main.marker0.id ">
+                <ui-gmap-window>
+                    <p>P_TEST</p>
+                </ui-gmap-window>
+                <!--
+                <ui-gmap-window options="windowOptions " closeClick="closeClick() ">
+                    <div>{{main.title}}</div>
+                </ui-gmap-window>
+-->
+            </ui-gmap-marker>
+        </ui-gmap-google-map>
+    </div>
+    <p>markerlist[1]: {{main.markerlist[1].show}}</p>
+    <container>
+        <p>{{main.markerlist}}</p>
+        <p class="lead ">Här borde det stå hej: {{main.events.Events[1].Title}}</p>
+        <p class="lead ">Alla events: {{main.events}}</p>
+        <p ng-repeat="marker in main.markerlist ">Marker-latitude: {{marker.coords.latitude}}</p>
+    </container>
+</div>
