@@ -4,7 +4,7 @@
         $sceDelegateProvider.resourceUrlWhitelist([
    // Allow same origin resource loads.
    'self',
-    'http://localhost:3000/**',
+    'http://192.168.1.78:3000/**',
    // Allow loading from our assets domain. 
    'https://www.google.com/maps/embed/**']);
     });
@@ -19,12 +19,23 @@
     app.controller('EventController', ["$http", function ($http) {
         var vm = this;
 
+        function Item(eventType, count) {
+            this.eventType = eventType;
+            this.count = count;
+        }
+
         vm.events = {};
+        vm.eventTypes = [];
         vm.areas = {};
         vm.selectedArea = {};
         vm.response = {};
-        this.polisAPI = "http://localhost:3000/areas";
+        this.polisAPI = "http://192.168.1.78:3000/areas";
         this.mapURL = "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=s";
+
+
+        vm.getNumber = function (num) {
+            return new Array(num);
+        };
 
         $http.get(this.polisAPI).success(function (data) {
             vm.areas = data;
@@ -33,16 +44,46 @@
         });
 
         vm.getAllEvents = function () {
-            $http.get(this.polisAPI + vm.selectedArea.url).success(function (data) {
+
+            $http.get(this.polisAPI + vm.selectedArea.url + "?limit=50").success(function (data) {
                 vm.events = data;
                 vm.singleCallToAllEvents();
+                vm.addEventTypes();
+            });
+
+
+        };
+
+        vm.addEventTypes = function () {
+            vm.eventTypes = [];
+            angular.forEach(vm.events.Events, function (val, key) {
+                vm.addEventType(val.EventType);
             });
 
         };
 
+        vm.addEventType = function (str) {
+            var typeFound = false;
+            angular.forEach(vm.eventTypes, function (val, key) {
+                if (val.eventType === str) {
+                    typeFound = true;
+                    val.count++;
+                }
+
+            });
+            if (!typeFound) {
+                vm.eventTypes.push(new Item(str, 1));
+            }
+        };
+
+
+
+
         vm.singleCallToAllEvents = function () {
             for (var i = 0; i < vm.events.Events.length; i++) {
+
                 vm.singleEventCall(vm.events.Events[i], i);
+
             }
         };
 
@@ -67,12 +108,16 @@
             return this.output;
         };
         this.arraysEqual = function (a, b) {
+            if (a === undefined || b === undefined) {
+                return false;
+            }
             if (a === b) {
                 return true;
             }
             if (a === null || b === null) {
                 return false;
             }
+
             if (a.length != b.length) {
                 return false;
             }
