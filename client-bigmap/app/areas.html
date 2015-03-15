@@ -1,28 +1,12 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
-<html lang="en" ng-app="bigmapApp" class="no-js">
-<!--<![endif]-->
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>My AngularJS App</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.css">
-    <link rel="stylesheet" href="app-copy.css">
-
-</head>
-
-<body ng-controller="mainController as main">
+<div ng-controller="mainController as main">
     <div class="container">
         <div class="starter-template">
             <h1>Kartprototyp</h1>
             <p>{{main.test}}</p>
+            <p>Parametrar: {{main.params}}</p>
+            <p>SelectedArea: {{main.selectedArea}}</p>
+
+            <a ng-repeat="area in main.areas.areas" href="#{{area.url}}">{{area.name}}</a>
         </div>
     </div>
     <div class="container">
@@ -63,22 +47,4 @@
         <p class="lead ">Alla events: {{main.events}}</p>
         <p ng-repeat="marker in main.markerlist ">Marker-latitude: {{marker.coords.latitude}}</p>
     </container>
-
-    <!--[if lt IE 7]>
-      <p class="browsehappy ">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/ ">upgrade your browser</a> to improve your experience.</p>
-  <![endif]-->
-
-
-
-    <!-- In production use:
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js "></script>
-  -->
-    <script src="bower_components/jquery/dist/jquery.min.js "></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js "></script>
-    <script src="bower_components/angular/angular.js "></script>
-    <script src="app-copy.js "></script>
-    <script src='bower_components/lodash/dist/lodash.min.js'></script>
-    <script src='bower_components/angular-google-maps/dist/angular-google-maps.js'></script>
-</body>
-
-</html>
+</div>
