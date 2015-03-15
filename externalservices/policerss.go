@@ -28,7 +28,8 @@ func CallPoliceRSSGetAll(url string, area string, numEvents int) (PoliceEvents, 
 	addAreaToEvents(area, &policeEvents)
 	addEventURIs(&policeEvents)
 
-	return policeEvents, error{}
+	var err error
+	return policeEvents, err
 }
 
 //Returns a PoliceEvents instead of PoliceEvent because we want to be able to reuse filter functions

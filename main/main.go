@@ -124,7 +124,10 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json := callPoliceRSSGetJSONAllEvents(area.RssURL, area.Value, limit)
+		//
+		//	Här behövs mer errorhantering
+		//
+		json, _ := callPoliceRSSGetJSONAllEvents(area.RssURL, area.Value, limit)
 		res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 		//**********************************************
@@ -212,12 +215,15 @@ func isEventIDValid(parameter string) (uint64, error) {
 	return id, err
 }
 
-func callPoliceRSSGetJSONAllEvents(url string, area string, limit int) []byte {
-	policeEvents := externalservices.CallPoliceRSSGetAll(url, area, limit)
+func callPoliceRSSGetJSONAllEvents(url string, area string, limit int) ([]byte, error) {
+	policeEvents, err := externalservices.CallPoliceRSSGetAll(url, area, limit)
+	if err != nil {
+		return []byte{}, err
+	}
 	filter.FilterPoliceEvents(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
-	return policeEventsAsJson
+	return policeEventsAsJson, err
 }
 func callPoliceRSSGetJSONSingleEvent(url string, area string, eventID uint32) ([]byte, error) {
 	policeEvents, err := externalservices.CallPoliceRSSGetSingle(url, area, eventID)
