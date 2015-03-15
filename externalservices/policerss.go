@@ -9,10 +9,16 @@ import (
 	"net/http"
 )
 
-func CallPoliceRSSGetAll(url string, area string, numEvents int) PoliceEvents {
-	httpResponse, _ := http.Get(url)
-	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
+func CallPoliceRSSGetAll(url string, area string, numEvents int) (PoliceEvents, error) {
+	httpResponse, httpErr := http.Get(url)
+	if httpErr != nil {
+		return PoliceEvents{}, httpErr
+	}
 
+	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
+	if ioErr != nil {
+		return PoliceEvents{}, ioErr
+	}
 	defer httpResponse.Body.Close()
 
 	policeEvents := policeXMLtoStructs(xmlResponse)
@@ -20,18 +26,23 @@ func CallPoliceRSSGetAll(url string, area string, numEvents int) PoliceEvents {
 	limitNumOfPoliceEvents(&policeEvents, numEvents)
 
 	addAreaToEvents(area, &policeEvents)
-	// addHashAsID(&policeEvents)
 	addEventURIs(&policeEvents)
 
-	return policeEvents
+	return policeEvents, error{}
 }
 
 //Returns a PoliceEvents instead of PoliceEvent because we want to be able to reuse filter functions
 //which only accepts PoliceEvents
 func CallPoliceRSSGetSingle(url string, area string, eventID uint32) (PoliceEvents, error) {
-	httpResponse, _ := http.Get(url)
-	xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
+	httpResponse, httpErr := http.Get(url)
+	if httpErr != nil {
+		return PoliceEvents{}, httpErr
+	}
 
+	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
+	if ioErr != nil {
+		return PoliceEvents{}, ioErr
+	}
 	defer httpResponse.Body.Close()
 
 	//Get police events
@@ -41,9 +52,8 @@ func CallPoliceRSSGetSingle(url string, area string, eventID uint32) (PoliceEven
 	eventsSingle, err := findEvent(eventID, policeEvents)
 
 	//Add area-value to event
-	// eventsSingle.Events[0].AreaValue = area
 	addAreaToEvents(area, &eventsSingle)
-	// addHashAsID(&eventsSingle)
+
 	addEventURIs(&eventsSingle)
 
 	return eventsSingle, err

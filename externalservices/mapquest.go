@@ -17,6 +17,12 @@ func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 		for i := 0; i < len(policeEvent.LocationWords); i++ {
 			wordsToSearchWith := URLifyString(policeEvent.LocationWords[i:])
 
+			//***************************
+			//
+			//		Felhantering behövs
+			//
+			//***************************
+
 			httpResponse, _ := http.Get(mapURL + wordsToSearchWith)
 			xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
 

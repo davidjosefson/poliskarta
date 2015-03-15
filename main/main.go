@@ -141,13 +141,6 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 // }
 
 func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Params) {
-	/*
-		- Kolla så att place är valid
-		- Gör http-anrop hos polisen med place
-		- Hasha alla polis-urler
-		- Jämför med param["eventhash"]
-		- Returnera JSON av
-	*/
 	area, placeErr := isPlaceValid(params["place"])
 	eventID, idParseErr := isEventIDValid(params["eventid"])
 
@@ -176,7 +169,6 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 			res.Write(json)
 		}
 	}
-
 }
 
 func isLimitParamValid(param string) (int, error) {
@@ -230,11 +222,19 @@ func callPoliceRSSGetJSONSingleEvent(url string, area string, eventID uint32) ([
 		return []byte{}, err
 	}
 
-	//Creating a waitgroup which will wait until all goroutines is finished
+	//Creating a waitgroup which will wait until all goroutines are finished
 	var wg sync.WaitGroup
 
 	//How many goroutines it should wait on
 	wg.Add(2)
+
+	//***************************
+	//
+	//		Hur gör vi med felhanteringen här?
+	// 		ska vi skicka in ett &Error-objekt, som vi efter
+	//		wg.Wait() tittar om det är null eller inte?
+	//
+	//***************************
 
 	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
 

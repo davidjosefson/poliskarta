@@ -27,6 +27,14 @@ func CallPoliceScraping(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 			var scrapedEvents ScrapedEvents
 			json.Unmarshal(body, &scrapedEvents)
 
+			//***************************
+			//
+			//		Raden under skapar error ibland. hur kommer det sig?
+			//		Finns det inget resultat? Borde väl bli error på Unmarshal då
+			//		och om det finns ett resultat, hur kan det då inte finnas en plats [0]???
+			//
+			//***************************
+
 			policeEvent.DescriptionLong = scrapedEvents.Results[0].Result
 
 		}
