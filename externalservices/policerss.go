@@ -11,17 +11,28 @@ import (
 
 func CallPoliceRSSGetAll(url string, area string, numEvents int) (PoliceEvents, error) {
 	httpResponse, httpErr := http.Get(url)
+	defer httpResponse.Body.Close()
+
+	//If we get http-error when calling the police-RSS
 	if httpErr != nil {
-		return PoliceEvents{}, httpErr
+		fmt.Println(httpErr.Error())
+		return PoliceEvents{}, errors.New("Communication error with polisen.se")
 	}
 
 	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
+
+	//If we get error while reading the response body
 	if ioErr != nil {
 		return PoliceEvents{}, ioErr
 	}
-	defer httpResponse.Body.Close()
 
 	policeEvents := policeXMLtoStructs(xmlResponse)
+
+	//If the rss-URL is faulty, we will get a 200 OK response, and the only way to know if it IS faulty is
+	//that the policeEvents-struct is empty
+	if len(policeEvents.Events) < 1 {
+		return PoliceEvents{}, errors.New("Communication error with polisen.se (might be a faulty rss-URL)")
+	}
 
 	limitNumOfPoliceEvents(&policeEvents, numEvents)
 
@@ -36,28 +47,36 @@ func CallPoliceRSSGetAll(url string, area string, numEvents int) (PoliceEvents, 
 //which only accepts PoliceEvents
 func CallPoliceRSSGetSingle(url string, area string, eventID uint32) (PoliceEvents, error) {
 	httpResponse, httpErr := http.Get(url)
+	defer httpResponse.Body.Close()
+
 	if httpErr != nil {
-		return PoliceEvents{}, httpErr
+		fmt.Println(httpErr.Error())
+		return PoliceEvents{}, errors.New("Communication error with polisen.se")
 	}
 
 	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
 	if ioErr != nil {
 		return PoliceEvents{}, ioErr
 	}
-	defer httpResponse.Body.Close()
 
 	//Get police events
 	policeEvents := policeXMLtoStructs(xmlResponse)
 
+	//If the rss-URL is faulty, we will get a 200 OK response, and the only way to know if it IS faulty is
+	//that the policeEvents-struct is empty
+	if len(policeEvents.Events) < 1 {
+		return PoliceEvents{}, errors.New("Communication error with polisen.se (might be a faulty rss-URL)")
+	}
+
 	//Check if eventID is found among the events
-	eventsSingle, err := findEvent(eventID, policeEvents)
+	eventsSingle, idNotFoundErr := findEvent(eventID, policeEvents)
 
 	//Add area-value to event
 	addAreaToEvents(area, &eventsSingle)
 
 	addEventURIs(&eventsSingle)
 
-	return eventsSingle, err
+	return eventsSingle, idNotFoundErr
 }
 
 func policeXMLtoStructs(policeRSSxml []byte) PoliceEvents {
@@ -111,8 +130,7 @@ func findEvent(eventID uint32, policeEvents PoliceEvents) (PoliceEvents, error) 
 		}
 	}
 
-	err = errors.New(string(eventID) + " didn't match any events")
-	return PoliceEvents{}, err
+	return PoliceEvents{}, &IdNotFoundError{fmt.Sprintf("%d didn't match any events", eventID)}
 }
 
 func addAreaToEvents(area string, policeEvents *PoliceEvents) {

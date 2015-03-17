@@ -19,3 +19,12 @@ type PoliceEvent struct {
 	Longitude             float32  `json:",omitempty"`
 	Latitude              float32  `json:",omitempty"`
 }
+
+//Own error type to be able to identify when a faulty event-ID is entered in the URL
+type IdNotFoundError struct {
+	msg string
+}
+
+func (e *IdNotFoundError) Error() string {
+	return e.msg
+}

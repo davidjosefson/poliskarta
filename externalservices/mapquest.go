@@ -2,6 +2,8 @@ package externalservices
 
 import (
 	"encoding/xml"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -12,34 +14,50 @@ import (
 func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 	// eventCopy := *policeEvent
 	mapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
+	defer wg.Done()
 
 	if len(policeEvent.LocationWords) > 0 {
 		for i := 0; i < len(policeEvent.LocationWords); i++ {
 			wordsToSearchWith := URLifyString(policeEvent.LocationWords[i:])
 
-			//***************************
-			//
-			//		Felhantering behövs
-			//
-			//***************************
-
-			httpResponse, _ := http.Get(mapURL + wordsToSearchWith)
-			xmlResponse, _ := ioutil.ReadAll(httpResponse.Body)
-
+			httpResponse, httpErr := http.Get(mapURL + wordsToSearchWith)
 			defer httpResponse.Body.Close()
 
-			geoLocation := geolocationXMLtoStructs(xmlResponse)
+			var xmlResponse []byte
+			var ioErr error
 
-			resultIsGood := evaluateGeoLocation(geoLocation)
-			// fmt.Println("Searching with: ", wordsToSearchWith)
-			if resultIsGood {
-				policeEvent.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
-				policeEvent.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
-				policeEvent.CoordinateSearchWords = policeEvent.LocationWords[i:]
-				// fmt.Println("Results are good: ", geoLocation.Locations)
-				break
+			if httpErr != nil {
+				policeEvent.Latitude = 0
+				policeEvent.Longitude = 0
+				policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+				return
 			} else {
-				// eventCopy.LocationWords = append(eventCopy.LocationWords, "BAD RESULTS")
+				xmlResponse, ioErr = ioutil.ReadAll(httpResponse.Body)
+
+				if ioErr != nil {
+					policeEvent.Latitude = 0
+					policeEvent.Longitude = 0
+					policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+					break
+				} else {
+					geoLocation := geolocationXMLtoStructs(xmlResponse)
+
+					fmt.Println("Geolocation: ", geoLocation)
+
+					resultIsGood, connectErr := evaluateGeoLocation(geoLocation)
+
+					if connectErr != nil {
+						policeEvent.Latitude = 0
+						policeEvent.Longitude = 0
+						policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+						break
+					} else if resultIsGood {
+						policeEvent.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
+						policeEvent.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
+						policeEvent.CoordinateSearchWords = policeEvent.LocationWords[i:]
+						break
+					}
+				}
 			}
 
 		}
@@ -47,7 +65,7 @@ func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 
 	// *policeEvent.LocationWords = append(*policeEvent.LocationWords, "FICK INGA KOORD: MapQ")
 	// *policeEvent = eventCopy
-	defer wg.Done()
+
 }
 
 func URLifyString(sliceToURLify []string) string {
@@ -61,17 +79,27 @@ func URLifyString(sliceToURLify []string) string {
 	return str
 }
 
-func evaluateGeoLocation(geoLocation GeoLocation) bool {
-	if geoLocation.Locations[0].LocationAlternatives != nil {
-		return true
+func evaluateGeoLocation(geoLocation GeoLocation) (bool, error) {
+	var err error
+
+	if len(geoLocation.Locations) > 0 {
+		if geoLocation.Locations[0].LocationAlternatives != nil {
+			return true, err
+		} else {
+			return false, err
+		}
 	} else {
-		return false
+		return false, errors.New("Communication error with mapquest.com")
 	}
 }
 
 func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
 	var geoLocation GeoLocation
-	xml.Unmarshal(XMLresponse, &geoLocation)
+	err := xml.Unmarshal(XMLresponse, &geoLocation)
+
+	if err != nil {
+		fmt.Println("Geo XML-Struct-error: ", err.Error())
+	}
 
 	return geoLocation
 }

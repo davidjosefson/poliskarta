@@ -29,7 +29,7 @@ type Area struct {
 }
 
 var areasArray = []Area{
-	Area{"Blekinge", "blekinge", "/blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss", 56.283333, 15.116667, 8},
+	Area{"Blekinge", "blekinge", "/blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinges/?feed=rss", 56.283333, 15.116667, 8},
 	Area{"Dalarna", "dalarna", "/dalarna", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss", 60.678611, 15.600556, 8},
 	Area{"Gotland", "gotland", "/gotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss", 57.499167, 18.509444, 8},
 	Area{"Gävleborg", "gavleborg", "/gavleborg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss", 60.780556, 16.655278, 8},
@@ -54,28 +54,24 @@ var areasArray = []Area{
 
 /*
 TODO:
-	2. Felhantering: polis/mapquest = nere, errors osv
 	3. Stockholms-undantag
-	4. Norrbotten: det mesta är fel här! Fler generella regler?
+	//4. Norrbotten: det mesta är fel här! Fler generella regler?
 	5. Lägga till HATEOAS på /, där man får en lista över tillgängliga län
-		- API-länkar
-		- bra namn
-		- bra value-namn (utan åäö/mellanslag)
-		- koordinater till "mittpunkten"?
-	6. Optimera? Antingen:
+		- API-länkar - för alla svar på alla resurser
+	//6. Optimera? Antingen:
 		- lägga in parameter ?no-coord=true  +  /getCoord/?Norra+gränges
 		- databas som sparar tidigare ord+koordinater, så att inget jobb/anrop görs utåt
 		- cache i 5 minuter som standard, eller en parameter för att alltid få senaste: ?no-cache=true
 	7. omstrukturera policeevents-structen så att den har objekt/grupper av saker
-	8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
+	//8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
 	så de inte behöver ligga dubbelt
 */
 
 func main() {
 	m := martini.Classic()
 
-	m.Get("/areas/:place", allEvents)
 	m.Get("/areas", allAreas)
+	m.Get("/areas/:place", allEvents)
 	m.Get("/areas/:place/:eventid", singleEvent)
 	// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 
@@ -97,14 +93,7 @@ func allAreas(res http.ResponseWriter, req *http.Request) {
 }
 
 func encodeAreasToJSON() []byte {
-	areasAsJSON, err := json.Marshal(areas)
-	if err != nil {
-		//*********
-		//Error som inte hanteras, glöm inte bort.
-		//*********
-
-		fmt.Println("encodingerror: ", err.Error())
-	}
+	areasAsJSON, _ := json.Marshal(areas)
 
 	return areasAsJSON
 }
@@ -124,27 +113,25 @@ func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), limitErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		//
-		//	Här behövs mer errorhantering
-		//
-		json, _ := callPoliceRSSGetJSONAllEvents(area.RssURL, area.Value, limit)
-		res.Header().Add("Content-type", "application/json; charset=utf-8")
+		json, connectErr := callPoliceRSSGetJSONAllEvents(area.RssURL, area.Value, limit)
 
-		//**********************************************
-		// Detta behövs medans vi köra allt på localhost,
-		// Dålig lösning som är osäker, men då kan vi
-		// i alla fall testa allt enkelt
-		//**********************************************
-		res.Header().Add("Access-Control-Allow-Origin", "*")
-
-		res.Write(json)
+		if connectErr != nil {
+			status := http.StatusInternalServerError
+			res.WriteHeader(status) // http-status 500
+			errorMessage := fmt.Sprintf("%v: %v \n\n%v", status, http.StatusText(status), connectErr.Error())
+			res.Write([]byte(errorMessage))
+		} else {
+			res.Header().Add("Content-type", "application/json; charset=utf-8")
+			//**********************************************
+			// Detta behövs medans vi köra allt på localhost,
+			// Dålig lösning som är osäker, men då kan vi
+			// i alla fall testa allt enkelt
+			//**********************************************
+			res.Header().Add("Access-Control-Allow-Origin", "*")
+			res.Write(json)
+		}
 	}
 }
-
-// Is for: r.Get(":place/(?P<number>10|[1-9])", singleEvent)
-// func singleEvent(params martini.Params) string {
-// 	return params["number"]
-// }
 
 func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Params) {
 	area, placeErr := isPlaceValid(params["place"])
@@ -159,12 +146,21 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 		errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idParseErr.Error())
 		res.Write([]byte(errorMessage))
 	} else {
-		json, idNotFoundErr := callPoliceRSSGetJSONSingleEvent(area.RssURL, area.Value, uint32(eventID))
-		if idNotFoundErr != nil {
-			res.WriteHeader(http.StatusBadRequest) // http-status 400
-			errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idNotFoundErr.Error())
-			res.Write([]byte(errorMessage))
+		json, connectErr := callPoliceRSSGetJSONSingleEvent(area.RssURL, area.Value, uint32(eventID))
+		if connectErr != nil {
+			if idNotFoundErr, ok := connectErr.(*externalservices.IdNotFoundError); ok {
+				//If id not found - return 400-error
+				res.WriteHeader(http.StatusBadRequest) // http-status 400
+				errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusBadRequest, http.StatusText(http.StatusBadRequest), idNotFoundErr.Error())
+				res.Write([]byte(errorMessage))
+			} else {
+				//If other error, return 500-error
+				res.WriteHeader(http.StatusBadRequest) // http-status 400
+				errorMessage := fmt.Sprintf("%v: %v \n\n%v", http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), connectErr.Error())
+				res.Write([]byte(errorMessage))
+			}
 		} else {
+			//If no error, return values
 			res.Header().Add("Content-type", "application/json; charset=utf-8")
 			//**********************************************
 			// Detta behövs medans vi köra allt på localhost,
@@ -236,14 +232,6 @@ func callPoliceRSSGetJSONSingleEvent(url string, area string, eventID uint32) ([
 
 	//How many goroutines it should wait on
 	wg.Add(2)
-
-	//***************************
-	//
-	//		Hur gör vi med felhanteringen här?
-	// 		ska vi skicka in ett &Error-objekt, som vi efter
-	//		wg.Wait() tittar om det är null eller inte?
-	//
-	//***************************
 
 	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
 
