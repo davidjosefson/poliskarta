@@ -83,7 +83,7 @@ bigmapControllers.controller("mainController", ["uiGmapGoogleMapApi", "$scope", 
 
     // $http.get("http://localhost:3000/areas/skane/?limit=5").success(function(data) {
         vm.getEvents = function() {
-            $http.get("http://localhost:3000/areas/" + vm.selectedArea.value + "/?limit=5").success(function(data) {
+            $http.get("http://localhost:3000/areas/" + vm.selectedArea.value + "/?limit=50").success(function(data) {
                 var events = data;
                 for (var i = 0; i < events.Events.length; i++) {
                     var marker = {
