@@ -7,18 +7,19 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"poliskarta/structs"
 	"strings"
 	"sync"
 )
 
-func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
+func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 	// eventCopy := *policeEvent
 	mapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
 	defer wg.Done()
 
-	if len(policeEvent.LocationWords) > 0 {
-		for i := 0; i < len(policeEvent.LocationWords); i++ {
-			wordsToSearchWith := URLifyString(policeEvent.LocationWords[i:])
+	if len(policeEvent.Location.Words) > 0 {
+		for i := 0; i < len(policeEvent.Location.Words); i++ {
+			wordsToSearchWith := URLifyString(policeEvent.Location.Words[i:])
 
 			httpResponse, httpErr := http.Get(mapURL + wordsToSearchWith)
 			defer httpResponse.Body.Close()
@@ -27,17 +28,17 @@ func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 			var ioErr error
 
 			if httpErr != nil {
-				policeEvent.Latitude = 0
-				policeEvent.Longitude = 0
-				policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+				policeEvent.Location.Latitude = 0
+				policeEvent.Location.Longitude = 0
+				policeEvent.Location.SearchWords = append(policeEvent.Location.SearchWords, "<N/A>")
 				return
 			} else {
 				xmlResponse, ioErr = ioutil.ReadAll(httpResponse.Body)
 
 				if ioErr != nil {
-					policeEvent.Latitude = 0
-					policeEvent.Longitude = 0
-					policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+					policeEvent.Location.Latitude = 0
+					policeEvent.Location.Longitude = 0
+					policeEvent.Location.SearchWords = append(policeEvent.Location.SearchWords, "<N/A>")
 					break
 				} else {
 					geoLocation := geolocationXMLtoStructs(xmlResponse)
@@ -47,14 +48,14 @@ func CallMapQuest(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
 					resultIsGood, connectErr := evaluateGeoLocation(geoLocation)
 
 					if connectErr != nil {
-						policeEvent.Latitude = 0
-						policeEvent.Longitude = 0
-						policeEvent.CoordinateSearchWords = append(policeEvent.CoordinateSearchWords, "<N/A>")
+						policeEvent.Location.Latitude = 0
+						policeEvent.Location.Longitude = 0
+						policeEvent.Location.SearchWords = append(policeEvent.Location.SearchWords, "<N/A>")
 						break
 					} else if resultIsGood {
-						policeEvent.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
-						policeEvent.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
-						policeEvent.CoordinateSearchWords = policeEvent.LocationWords[i:]
+						policeEvent.Location.Latitude = geoLocation.Locations[0].LocationAlternatives[0].Latitude
+						policeEvent.Location.Longitude = geoLocation.Locations[0].LocationAlternatives[0].Longitude
+						policeEvent.Location.SearchWords = policeEvent.Location.Words[i:]
 						break
 					}
 				}
@@ -79,7 +80,7 @@ func URLifyString(sliceToURLify []string) string {
 	return str
 }
 
-func evaluateGeoLocation(geoLocation GeoLocation) (bool, error) {
+func evaluateGeoLocation(geoLocation structs.GeoLocation) (bool, error) {
 	var err error
 
 	if len(geoLocation.Locations) > 0 {
@@ -93,8 +94,8 @@ func evaluateGeoLocation(geoLocation GeoLocation) (bool, error) {
 	}
 }
 
-func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
-	var geoLocation GeoLocation
+func geolocationXMLtoStructs(XMLresponse []byte) structs.GeoLocation {
+	var geoLocation structs.GeoLocation
 	err := xml.Unmarshal(XMLresponse, &geoLocation)
 
 	if err != nil {
@@ -102,19 +103,4 @@ func geolocationXMLtoStructs(XMLresponse []byte) GeoLocation {
 	}
 
 	return geoLocation
-}
-
-type GeoLocation struct {
-	Locations []Location `xml:"results>result"`
-	// ThumbMaps string     `xml:"options>thumbMaps"`
-}
-
-type Location struct {
-	LocationAlternatives []LocationAlternative `xml:"locations>location"`
-}
-
-type LocationAlternative struct {
-	Quality   string  `xml:"geocodeQuality"`
-	Latitude  float32 `xml:"displayLatLng>latLng>lat"`
-	Longitude float32 `xml:"displayLatLng>latLng>lng"`
 }

@@ -1,8 +1,8 @@
 package filter
 
-import "poliskarta/externalservices"
+import "poliskarta/structs"
 
-func FilterPoliceEvents(policeEvents *externalservices.PoliceEvents) {
+func FilterPoliceEvents(policeEvents *structs.PoliceEvents) {
 	eventsCopy := *policeEvents
 	filterOutTime(&eventsCopy)
 	filterOutEventType(&eventsCopy)
@@ -10,7 +10,7 @@ func FilterPoliceEvents(policeEvents *externalservices.PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func filterOutTime(policeEvents *externalservices.PoliceEvents) {
+func filterOutTime(policeEvents *structs.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, event := range eventsCopy.Events {
@@ -20,7 +20,7 @@ func filterOutTime(policeEvents *externalservices.PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func filterOutEventType(policeEvents *externalservices.PoliceEvents) {
+func filterOutEventType(policeEvents *structs.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, event := range eventsCopy.Events {
@@ -30,7 +30,7 @@ func filterOutEventType(policeEvents *externalservices.PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
+func filterOutLocationsWords(policeEvents *structs.PoliceEvents) {
 	eventsCopy := *policeEvents
 
 	for index, _ := range eventsCopy.Events {
@@ -38,7 +38,7 @@ func filterOutLocationsWords(policeEvents *externalservices.PoliceEvents) {
 
 		if err == nil {
 			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].DescriptionShort)
-			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].LocationWords)
+			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].Location.Words)
 		}
 
 	}

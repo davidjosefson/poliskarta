@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"poliskarta/structs"
 	"sync"
 )
 
-func CallPoliceScraping(policeEvent *PoliceEvent, wg *sync.WaitGroup) {
+func CallPoliceScraping(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 	scrapeURL := "https://api.import.io/store/data/3c3e1355-d3c9-4047-bd2e-f86d36af29dc/_query?input/webpage/url="
 	apikey := "&_user=***REMOVED***&_apikey=***REMOVED***"
 
-	httpResult, httperr := http.Get(scrapeURL + policeEvent.Link + apikey)
+	httpResult, httperr := http.Get(scrapeURL + policeEvent.PoliceEventURL + apikey)
 
 	if httperr != nil {
 		fmt.Println("Importio http-error: " + httperr.Error())
