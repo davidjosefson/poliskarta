@@ -34,7 +34,7 @@ type PoliceEvent struct {
 	DescriptionShort string           `xml:"description" json:"descriptionShort"`
 	DescriptionLong  string           `json:"descriptionLong,omitempty"`
 	Area             *PoliceEventArea `json:"area,omitempty"`
-	Location         LocationInfo     `json:"location"`
+	Location         *LocationInfo    `json:"location,omitempty"`
 	PoliceEventURL   string           `xml:"link" json:"-"`
 	Links            []Link           `json:"links"`
 }

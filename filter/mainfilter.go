@@ -37,6 +37,8 @@ func filterOutLocationsWords(policeEvents *structs.PoliceEvents) {
 		titleWords, err := FilterTitleWords(eventsCopy.Events[index].Title)
 
 		if err == nil {
+			//Must be instantiated before we can append words
+			eventsCopy.Events[index].Location = &structs.LocationInfo{}
 			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].DescriptionShort)
 			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].Location.Words)
 		}
