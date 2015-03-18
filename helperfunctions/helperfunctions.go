@@ -92,7 +92,11 @@ func WordIsNumber(word string) bool {
 
 func RemoveIndexFromSlice(index int, slice *[]string) {
 	sliceCopy := *slice
-	sliceCopy = append(sliceCopy[:index], sliceCopy[index+1:]...)
+	if len(sliceCopy) > index {
+		sliceCopy = append(sliceCopy[:index], sliceCopy[index+1:]...)
+	} else {
+		sliceCopy = sliceCopy[:index]
+	}
 	*slice = sliceCopy
 }
 
