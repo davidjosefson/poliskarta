@@ -37,7 +37,7 @@ func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents
 
 	limitNumOfPoliceEvents(&policeEvents, numEvents)
 
-	// addAreaToEvents(area, &policeEvents)
+	addAreaInfoToResponse(&policeEvents, area)
 	addEventLinks(&policeEvents, area)
 
 	var err error
@@ -74,6 +74,9 @@ func CallPoliceRSSGetSingle(area structs.Area, eventID uint32) (structs.PoliceEv
 
 	//Add area-value to event
 	addAreaToEvents(area, &eventsSingle)
+
+	//Has to be added because mainfilter checks if this info is for "stockholm", and acts accordingly
+	addAreaInfoToResponse(&eventsSingle, area)
 
 	addEventLinks(&eventsSingle, area)
 
@@ -139,4 +142,14 @@ func addAreaToEvents(area structs.Area, policeEvents *structs.PoliceEvents) {
 	for i, _ := range policeEvents.Events {
 		policeEvents.Events[i].Area = &structs.PoliceEventArea{area.Name, area.Value, area.Links}
 	}
+}
+func addAreaInfoToResponse(policeEvents *structs.PoliceEvents, area structs.Area) {
+
+	policeEvents.Name = area.Name
+	policeEvents.Value = area.Value
+	policeEvents.Latitude = area.Latitude
+	policeEvents.Longitude = area.Longitude
+	policeEvents.GoogleZoomLevel = area.GoogleZoomLevel
+	policeEvents.Links = area.Links
+
 }

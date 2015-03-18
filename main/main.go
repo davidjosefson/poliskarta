@@ -68,9 +68,11 @@ TODO:
 	//8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
 	så de inte behöver ligga dubbelt
 
-Möjliga förbättringar:
+Mjöliga förbättringar:
 	1. ta bort "född -90" och andra "-<årtal>"
 	2. Kolla om första order innehåller något typ "väg" eller "gatan", för då ska det inte tas bort.
+	3. Rensa bort alla /n
+	4. Separera interna structs och JSON-structs
 */
 
 func main() {
@@ -219,23 +221,13 @@ func callPoliceRSSGetJSONAllEvents(area structs.Area, limit int) ([]byte, error)
 	if err != nil {
 		return []byte{}, err
 	}
+	//addAreaInfoToResponse(&policeEvents, area)
 	filter.FilterPoliceEvents(&policeEvents)
-	addAreaInfoToResponse(&policeEvents, area)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return policeEventsAsJson, err
 }
 
-func addAreaInfoToResponse(policeEvents *structs.PoliceEvents, area structs.Area) {
-
-	policeEvents.Name = area.Name
-	policeEvents.Value = area.Value
-	policeEvents.Latitude = area.Latitude
-	policeEvents.Longitude = area.Longitude
-	policeEvents.GoogleZoomLevel = area.GoogleZoomLevel
-	policeEvents.Links = area.Links
-
-}
 func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte, error) {
 	policeEvents, err := externalservices.CallPoliceRSSGetSingle(area, eventID)
 	if err != nil {

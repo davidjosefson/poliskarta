@@ -53,6 +53,7 @@ func StartsWithUppercase(str string) bool {
 
 }
 
+//Trims the string before checking if it exists in slice
 func TrimmedStringInSlice(str string, slice []string) bool {
 
 	TrimSuffixesFromWord(&str, ".", ",")

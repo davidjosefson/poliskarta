@@ -1,12 +1,20 @@
 package filter
 
-import "poliskarta/structs"
+import (
+	"poliskarta/helperfunctions"
+	"poliskarta/structs"
+	"strings"
+)
 
 func FilterPoliceEvents(policeEvents *structs.PoliceEvents) {
 	eventsCopy := *policeEvents
 	filterOutTime(&eventsCopy)
 	filterOutEventType(&eventsCopy)
-	filterOutLocationsWords(&eventsCopy)
+	if policeEvents.Value == "stockholm" {
+		addAllWordsAsLocationWords(&eventsCopy)
+	} else {
+		filterOutLocationsWords(&eventsCopy)
+	}
 	*policeEvents = eventsCopy
 }
 
@@ -46,6 +54,24 @@ func filterOutLocationsWords(policeEvents *structs.PoliceEvents) {
 	}
 
 	*policeEvents = eventsCopy
+}
+func addAllWordsAsLocationWords(policeEvents *structs.PoliceEvents) {
+
+	for index, _ := range policeEvents.Events {
+
+		titleWords, err := FilterTitleWords(policeEvents.Events[index].Title)
+
+		if err == nil {
+			//Must be instantiated before we can append words
+			policeEvents.Events[index].Location = &structs.LocationInfo{}
+
+			descriptionWords := strings.Split(policeEvents.Events[index].DescriptionShort, ",")
+			helperfunctions.TrimSpacesFromArray(&descriptionWords)
+			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &policeEvents.Events[index].Location.Words)
+		}
+
+	}
+
 }
 
 func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {
