@@ -14,30 +14,51 @@ import (
 	"github.com/go-martini/martini"
 )
 
-var areas = structs.AreasStruct{areasArray}
+var areas = structs.AreasStruct{areasArray, []structs.Link{structs.Link{"self", structs.APIURL + "areas"}}}
 
 var areasArray = []structs.Area{
-	structs.Area{"Blekinge", "blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss", 56.283333, 15.116667, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/blekinge"}}},
-	structs.Area{"Dalarna", "dalarna", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss", 60.678611, 15.600556, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/dalarna"}}},
-	structs.Area{"Gotland", "gotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss", 57.499167, 18.509444, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/gotland"}}},
-	structs.Area{"Gävleborg", "gavleborg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss", 60.780556, 16.655278, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/gavleborg"}}},
-	structs.Area{"Halland", "halland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss", 56.716667, 12.821111, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/halland"}}},
-	structs.Area{"Jämtland", "jamtland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss", 63.283056, 14.238333, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/jamtland"}}},
-	structs.Area{"Jönköping", "jonkoping", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss", 57.750000, 14.200000, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/jonkoping"}}},
-	structs.Area{"Kalmar", "kalmar", "https://polisen.se/Kalmar_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Kalmar-lan/?feed=rss", 56.733333, 15.9, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/kalmar"}}},
-	structs.Area{"Kronoberg", "kronoberg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss", 56.79, 14.44, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/kronoberg"}}},
-	structs.Area{"Norrbotten", "norrbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss", 67.135833, 18.501111, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/norrbotten"}}},
-	structs.Area{"Skåne", "skane", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss", 56, 13.45, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/skane"}}},
-	structs.Area{"Stockholm", "stockholm", "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss", 59.333333, 18.166667, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/stockholm"}}},
-	structs.Area{"Södermanland", "sodermanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss", 58.771111, 16.869444, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/sodermanland"}}},
-	structs.Area{"Uppsala", "uppsala", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala?feed=rss", 59.858333, 17.65, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/uppsala"}}},
-	structs.Area{"Värmland", "varmland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss", 59.425556, 13.271389, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/varmland"}}},
-	structs.Area{"Västerbotten", "vasterbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss", 64.344722, 18.314167, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/vasterbotten"}}},
-	structs.Area{"Västernorrland", "vasternorrland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss", 62.733333, 16.933333, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/vasternorrland"}}},
-	structs.Area{"Västmanland", "vastmanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss", 59.645556, 16.424444, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/vastmanland"}}},
-	structs.Area{"Västra Götaland", "vastragotaland", "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss", 58.216944, 11.733333, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/vastragotaland"}}},
-	structs.Area{"Örebro", "orebro", "https://polisen.se/Orebro_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro-lan/?feed=rss", 59.266667, 15.216667, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/orebro"}}},
-	structs.Area{"Östergötland", "ostergotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss", 58.410447, 15.613558, 8, []structs.Link{structs.Link{"self", "http://localhost:3000/areas/ostergotland"}}},
+	structs.Area{"Blekinge", "blekinge", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss", 56.283333, 15.116667, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/blekinge"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Blekinge/?feed=rss"}}},
+	structs.Area{"Dalarna", "dalarna", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss", 60.678611, 15.600556, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/dalarna"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Dalarna/?feed=rss"}}},
+	structs.Area{"Gotland", "gotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss", 57.499167, 18.509444, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/gotland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gotland/?feed=rss"}}},
+	structs.Area{"Gävleborg", "gavleborg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss", 60.780556, 16.655278, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/gavleborg"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Gavleborg/?feed=rss"}}},
+	structs.Area{"Halland", "halland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss", 56.716667, 12.821111, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/halland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Halland/?feed=rss"}}},
+	structs.Area{"Jämtland", "jamtland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss", 63.283056, 14.238333, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/jamtland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jamtland/?feed=rss"}}},
+	structs.Area{"Jönköping", "jonkoping", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss", 57.750000, 14.200000, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/jonkoping"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Jonkoping/?feed=rss"}}},
+	structs.Area{"Kalmar", "kalmar", "https://polisen.se/Kalmar_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Kalmar-lan/?feed=rss", 56.733333, 15.9, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/kalmar"}, structs.Link{"origin", "https://polisen.se/Kalmar_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Kalmar-lan/?feed=rss"}}},
+	structs.Area{"Kronoberg", "kronoberg", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss", 56.79, 14.44, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/kronoberg"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Kronoberg?feed=rss"}}},
+	structs.Area{"Norrbotten", "norrbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss", 67.135833, 18.501111, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/norrbotten"}, structs.Link{"origin", "ttps://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Norrbotten?feed=rss"}}},
+	structs.Area{"Skåne", "skane", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss", 56, 13.45, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/skane"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Skane?feed=rss"}}},
+	structs.Area{"Stockholm", "stockholm", "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss", 59.333333, 18.166667, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/stockholm"}, structs.Link{"origin", "https://polisen.se/Stockholms_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Stockholms-lan/?feed=rss"}}},
+	structs.Area{"Södermanland", "sodermanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss", 58.771111, 16.869444, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/sodermanland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Sodermanland?feed=rss"}}},
+	structs.Area{"Uppsala", "uppsala", "https://polisen.se/Uppsala_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala-lan/?feed=rss", 59.858333, 17.65, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/uppsala"}, structs.Link{"origin", "https://polisen.se/Uppsala_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Uppsala-lan/?feed=rss"}}},
+	structs.Area{"Värmland", "varmland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss", 59.425556, 13.271389, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/varmland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Varmland?feed=rss"}}},
+	structs.Area{"Västerbotten", "vasterbotten", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss", 64.344722, 18.314167, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/vasterbotten"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasterbotten?feed=rss"}}},
+	structs.Area{"Västernorrland", "vasternorrland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss", 62.733333, 16.933333, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/vasternorrland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vasternorrland?feed=rss"}}},
+	structs.Area{"Västmanland", "vastmanland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss", 59.645556, 16.424444, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/vastmanland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastmanland?feed=rss"}}},
+	structs.Area{"Västra Götaland", "vastragotaland", "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss", 58.216944, 11.733333, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/vastragotaland"}, structs.Link{"origin", "https://polisen.se/Vastra_Gotaland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Vastra-Gotaland/?feed=rss"}}},
+	structs.Area{"Örebro", "orebro", "https://polisen.se/Orebro_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro-lan/?feed=rss", 59.266667, 15.216667, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/orebro"}, structs.Link{"origin", "https://polisen.se/Orebro_lan/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Orebro-lan/?feed=rss"}}},
+	structs.Area{"Östergötland", "ostergotland", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss", 58.410447, 15.613558, 8,
+		[]structs.Link{structs.Link{"self", structs.APIURL + "areas/ostergotland"}, structs.Link{"origin", "https://polisen.se/Halland/Aktuellt/RSS/Lokal-RSS---Handelser/Lokala-RSS-listor1/Handelser-RSS---Ostergotland?feed=rss"}}},
 }
 
 /*
@@ -58,16 +79,19 @@ TODO:
 func main() {
 	m := martini.Classic()
 
-	m.Get("/areas", allAreas)
-	m.Get("/areas/:place", allEvents)
-	m.Get("/areas/:place/:eventid", singleEvent)
+	m.Get("/api/v1/areas", allAreas)
+	m.Get("/api/v1/areas/:place", allEvents)
+	m.Get("/api/v1/areas/:place/:eventid", singleEvent)
 	// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 
 	m.Run()
 }
 
 func allAreas(res http.ResponseWriter, req *http.Request) {
-	json := encodeAreasToJSON()
+
+	//Encodes areas to JSON
+	json, _ := json.Marshal(areas)
+
 	res.Header().Add("Content-type", "application/json; charset=utf-8")
 
 	//**********************************************
@@ -78,12 +102,6 @@ func allAreas(res http.ResponseWriter, req *http.Request) {
 	res.Header().Add("Access-Control-Allow-Origin", "*")
 
 	res.Write(json)
-}
-
-func encodeAreasToJSON() []byte {
-	areasAsJSON, _ := json.Marshal(areas)
-
-	return areasAsJSON
 }
 
 func allEvents(res http.ResponseWriter, req *http.Request, params martini.Params) {
@@ -205,9 +223,21 @@ func callPoliceRSSGetJSONAllEvents(area structs.Area, limit int) ([]byte, error)
 		return []byte{}, err
 	}
 	filter.FilterPoliceEvents(&policeEvents)
+	addAreaInfoToResponse(&policeEvents, area)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
 	return policeEventsAsJson, err
+}
+
+func addAreaInfoToResponse(policeEvents *structs.PoliceEvents, area structs.Area) {
+
+	policeEvents.Name = area.Name
+	policeEvents.Value = area.Value
+	policeEvents.Latitude = area.Latitude
+	policeEvents.Longitude = area.Longitude
+	policeEvents.GoogleZoomLevel = area.GoogleZoomLevel
+	policeEvents.Links = area.Links
+
 }
 func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte, error) {
 	policeEvents, err := externalservices.CallPoliceRSSGetSingle(area, eventID)

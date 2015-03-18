@@ -1,7 +1,10 @@
 package structs
 
+var APIURL = "http://localhost:3000/api/v1/"
+
 type AreasStruct struct {
 	Areas []Area `json:"areas"`
+	Links []Link `json:"links"`
 }
 type Area struct {
 	Name            string  `json:"name"`
@@ -14,20 +17,26 @@ type Area struct {
 }
 
 type PoliceEvents struct {
-	Events []PoliceEvent `xml:"channel>item"`
+	Name            string        `json:"name"`
+	Value           string        `json:"value"`
+	Latitude        float32       `json:"latitude"`
+	Longitude       float32       `json:"longitude"`
+	GoogleZoomLevel int           `json:"zoomlevel"`
+	Events          []PoliceEvent `xml:"channel>item" json:"events"`
+	Links           []Link        `json:"links"`
 }
 
 type PoliceEvent struct {
-	ID               uint32          `json:"id,string"`
-	Title            string          `xml:"title" json:"title"`
-	Time             string          `json:"time"`
-	EventType        string          `json:"eventType"`
-	DescriptionShort string          `xml:"description" json:"descriptionShort"`
-	DescriptionLong  string          `json:"descriptionLong ,omitempty"`
-	Area             PoliceEventArea `json:"area"`
-	Location         LocationInfo    `json:"location"`
-	PoliceEventURL   string          `xml:"link" json:"-"`
-	Links            []Link          `json:"links"`
+	ID               uint32           `json:"id,string"`
+	Title            string           `xml:"title" json:"title"`
+	Time             string           `json:"time"`
+	EventType        string           `json:"eventType"`
+	DescriptionShort string           `xml:"description" json:"descriptionShort"`
+	DescriptionLong  string           `json:"descriptionLong,omitempty"`
+	Area             *PoliceEventArea `json:"area,omitempty"`
+	Location         LocationInfo     `json:"location"`
+	PoliceEventURL   string           `xml:"link" json:"-"`
+	Links            []Link           `json:"links"`
 }
 
 type Link struct {
@@ -43,8 +52,8 @@ type LocationInfo struct {
 }
 
 type PoliceEventArea struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string `json:"name,omitempty"`
+	Value string `json:"value,omitempty"`
 	Links []Link `json:"links"`
 }
 

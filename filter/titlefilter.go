@@ -10,7 +10,7 @@ func FilterTitleWords(title string) ([]string, error) {
 	var locationWords []string
 	var err error
 
-	if !hasSammanfattning(title) {
+	if hasLocationInTitle(title) {
 		locationWords = strings.Split(title, ",")
 		removeTimeStamp(&locationWords)
 		trimSpecialChars(&locationWords)
@@ -54,8 +54,12 @@ func removeNonLocationWords(title *[]string) {
 	*title = titleLocation
 }
 
-func hasSammanfattning(title string) bool {
-	return strings.Contains(strings.ToLower(title), "sammanfattning")
+func hasLocationInTitle(title string) bool {
+	if strings.Contains(strings.ToLower(title), "sammanfattning") || strings.Contains(strings.ToLower(title), "övrigt") || strings.Contains(strings.ToLower(title), "obemannat") {
+		return false
+	} else {
+		return true
+	}
 }
 
 func GetTime(title string) string {

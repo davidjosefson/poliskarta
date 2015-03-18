@@ -37,8 +37,8 @@ func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents
 
 	limitNumOfPoliceEvents(&policeEvents, numEvents)
 
-	addAreaToEvents(area, &policeEvents)
-	addEventURIs(&policeEvents)
+	// addAreaToEvents(area, &policeEvents)
+	addEventLinks(&policeEvents, area)
 
 	var err error
 	return policeEvents, err
@@ -75,7 +75,7 @@ func CallPoliceRSSGetSingle(area structs.Area, eventID uint32) (structs.PoliceEv
 	//Add area-value to event
 	addAreaToEvents(area, &eventsSingle)
 
-	addEventURIs(&eventsSingle)
+	addEventLinks(&eventsSingle, area)
 
 	return eventsSingle, idNotFoundErr
 }
@@ -114,10 +114,11 @@ func addHashAsID(policeEvents *structs.PoliceEvents) {
 	*policeEvents = eventsCopy
 }
 
-func addEventURIs(policeEvents *structs.PoliceEvents) {
+func addEventLinks(policeEvents *structs.PoliceEvents, area structs.Area) {
 	for index, event := range policeEvents.Events {
-		link := structs.Link{"self", fmt.Sprintf("http://localhost:3000/areas/%v/%d", event.Area.Value, event.ID)}
-		policeEvents.Events[index].Links = append(policeEvents.Events[index].Links, link)
+		selfLink := structs.Link{"self", fmt.Sprintf(structs.APIURL+"areas/%v/%d", area.Value, event.ID)}
+		originLink := structs.Link{"origin", event.PoliceEventURL}
+		policeEvents.Events[index].Links = append(policeEvents.Events[index].Links, selfLink, originLink)
 	}
 }
 
@@ -136,6 +137,6 @@ func findEvent(eventID uint32, policeEvents structs.PoliceEvents) (structs.Polic
 
 func addAreaToEvents(area structs.Area, policeEvents *structs.PoliceEvents) {
 	for i, _ := range policeEvents.Events {
-		policeEvents.Events[i].Area = structs.PoliceEventArea{area.Name, area.Value, area.Links}
+		policeEvents.Events[i].Area = &structs.PoliceEventArea{area.Name, area.Value, area.Links}
 	}
 }
