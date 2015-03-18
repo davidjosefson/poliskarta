@@ -50,15 +50,12 @@ func filterOutLocationsWords(policeEvents *structs.PoliceEvents) {
 			descriptionWords := FilterDescriptionWords(eventsCopy.Events[index].DescriptionShort)
 			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &eventsCopy.Events[index].Location.Words)
 		}
-
 	}
 
 	*policeEvents = eventsCopy
 }
 func addAllWordsAsLocationWords(policeEvents *structs.PoliceEvents) {
-
 	for index, _ := range policeEvents.Events {
-
 		titleWords, err := FilterTitleWords(policeEvents.Events[index].Title)
 
 		if err == nil {
@@ -69,9 +66,7 @@ func addAllWordsAsLocationWords(policeEvents *structs.PoliceEvents) {
 			helperfunctions.TrimSpacesFromArray(&descriptionWords)
 			removeDuplicatesAndCombineLocationWords(titleWords, descriptionWords, &policeEvents.Events[index].Location.Words)
 		}
-
 	}
-
 }
 
 func removeDuplicatesAndCombineLocationWords(titleWords []string, descriptionWords []string, locationWords *[]string) {

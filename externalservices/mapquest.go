@@ -13,7 +13,6 @@ import (
 )
 
 func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
-	// eventCopy := *policeEvent
 	mapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=***REMOVED***&outFormat=xml&location="
 	defer wg.Done()
 
@@ -22,7 +21,6 @@ func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 			wordsToSearchWith := URLifyString(policeEvent.Location.Words[i:])
 
 			httpResponse, httpErr := http.Get(mapURL + wordsToSearchWith)
-			defer httpResponse.Body.Close()
 
 			var xmlResponse []byte
 			var ioErr error
@@ -33,6 +31,7 @@ func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 				policeEvent.Location.SearchWords = append(policeEvent.Location.SearchWords, "<N/A>")
 				return
 			} else {
+				defer httpResponse.Body.Close()
 				xmlResponse, ioErr = ioutil.ReadAll(httpResponse.Body)
 
 				if ioErr != nil {
@@ -42,9 +41,6 @@ func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 					break
 				} else {
 					geoLocation := geolocationXMLtoStructs(xmlResponse)
-
-					fmt.Println("Geolocation: ", geoLocation)
-
 					resultIsGood, connectErr := evaluateGeoLocation(geoLocation)
 
 					if connectErr != nil {
@@ -63,10 +59,6 @@ func CallMapQuest(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 
 		}
 	}
-
-	// *policeEvent.LocationWords = append(*policeEvent.LocationWords, "FICK INGA KOORD: MapQ")
-	// *policeEvent = eventCopy
-
 }
 
 func URLifyString(sliceToURLify []string) string {

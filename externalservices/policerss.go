@@ -12,13 +12,14 @@ import (
 
 func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents, error) {
 	httpResponse, httpErr := http.Get(area.RssURL)
-	defer httpResponse.Body.Close()
 
 	//If we get http-error when calling the police-RSS
 	if httpErr != nil {
 		fmt.Println(httpErr.Error())
 		return structs.PoliceEvents{}, errors.New("Communication error with polisen.se")
 	}
+
+	defer httpResponse.Body.Close()
 
 	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
 
@@ -48,12 +49,13 @@ func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents
 //which only accepts PoliceEvents
 func CallPoliceRSSGetSingle(area structs.Area, eventID uint32) (structs.PoliceEvents, error) {
 	httpResponse, httpErr := http.Get(area.RssURL)
-	defer httpResponse.Body.Close()
 
 	if httpErr != nil {
 		fmt.Println(httpErr.Error())
 		return structs.PoliceEvents{}, errors.New("Communication error with polisen.se")
 	}
+
+	defer httpResponse.Body.Close()
 
 	xmlResponse, ioErr := ioutil.ReadAll(httpResponse.Body)
 	if ioErr != nil {
@@ -144,12 +146,10 @@ func addAreaToEvents(area structs.Area, policeEvents *structs.PoliceEvents) {
 	}
 }
 func addAreaInfoToResponse(policeEvents *structs.PoliceEvents, area structs.Area) {
-
 	policeEvents.Name = area.Name
 	policeEvents.Value = area.Value
 	policeEvents.Latitude = area.Latitude
 	policeEvents.Longitude = area.Longitude
 	policeEvents.GoogleZoomLevel = area.GoogleZoomLevel
 	policeEvents.Links = area.Links
-
 }

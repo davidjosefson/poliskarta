@@ -62,17 +62,13 @@ var areasArray = []structs.Area{
 }
 
 /*
-TODO:
-	3. Stockholms-undantag
-	//4. Norrbotten: det mesta är fel här! Fler generella regler?
-	//8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
-	så de inte behöver ligga dubbelt
-
 Mjöliga förbättringar:
 	1. ta bort "född -90" och andra "-<årtal>"
 	2. Kolla om första order innehåller något typ "väg" eller "gatan", för då ska det inte tas bort.
 	3. Rensa bort alla /n
 	4. Separera interna structs och JSON-structs
+	5. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till policeXMLToStructs,
+	så de inte behöver ligga dubbelt
 */
 
 func main() {
@@ -81,7 +77,6 @@ func main() {
 	m.Get("/api/v1/areas", allAreas)
 	m.Get("/api/v1/areas/:place", allEvents)
 	m.Get("/api/v1/areas/:place/:eventid", singleEvent)
-	// r.Get(":place/(?P<number>10|[1-9])", singleEvent)
 
 	m.Run()
 }
@@ -221,7 +216,7 @@ func callPoliceRSSGetJSONAllEvents(area structs.Area, limit int) ([]byte, error)
 	if err != nil {
 		return []byte{}, err
 	}
-	//addAreaInfoToResponse(&policeEvents, area)
+
 	filter.FilterPoliceEvents(&policeEvents)
 	policeEventsAsJson := encodePoliceEventsToJSON(policeEvents)
 
@@ -238,14 +233,18 @@ func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte,
 	var wg sync.WaitGroup
 
 	//How many goroutines it should wait on
-	wg.Add(2)
+	wg.Add(1)
 
 	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
 
 	//Is needed before calling MapQuest
 	filter.FilterPoliceEvents(&policeEvents)
 
-	go externalservices.CallMapQuest(&policeEvents.Events[0], &wg)
+	//If location-words are present in the event try to find coordinates
+	if policeEvents.Events[0].Location != nil {
+		wg.Add(1)
+		go externalservices.CallMapQuest(&policeEvents.Events[0], &wg)
+	}
 
 	//Wait for all goroutines to finish
 	wg.Wait()

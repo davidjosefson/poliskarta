@@ -13,13 +13,14 @@ func CallPoliceScraping(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 	scrapeURL := "https://api.import.io/store/data/3c3e1355-d3c9-4047-bd2e-f86d36af29dc/_query?input/webpage/url="
 	apikey := "&_user=***REMOVED***&_apikey=***REMOVED***"
 
-	httpResult, httperr := http.Get(scrapeURL + policeEvent.PoliceEventURL + apikey)
+	httpResponse, httperr := http.Get(scrapeURL + policeEvent.PoliceEventURL + apikey)
 
 	if httperr != nil {
 		fmt.Println("Importio http-error: " + httperr.Error())
 		policeEvent.DescriptionLong = "<N/A>"
 	} else {
-		body, ioerr := ioutil.ReadAll(httpResult.Body)
+		defer httpResponse.Body.Close()
+		body, ioerr := ioutil.ReadAll(httpResponse.Body)
 
 		if ioerr != nil {
 			fmt.Println("Ioutilreadallerror: ", ioerr.Error())

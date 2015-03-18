@@ -68,7 +68,6 @@ func (e *IdNotFoundError) Error() string {
 
 type GeoLocation struct {
 	Locations []Location `xml:"results>result"`
-	// ThumbMaps string     `xml:"options>thumbMaps"`
 }
 
 type Location struct {

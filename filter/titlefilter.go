@@ -16,7 +16,7 @@ func FilterTitleWords(title string) ([]string, error) {
 		trimSpecialChars(&locationWords)
 		removeNonLocationWords(&locationWords)
 	} else {
-		err = errors.New("Titeln är av typen 'Sammanfattning' och innehåller ingen platsinformation")
+		err = errors.New("Händelsen är inte platsspecifik och innehåller nästan ingen platsinformation")
 	}
 
 	return locationWords, err
@@ -55,7 +55,8 @@ func removeNonLocationWords(title *[]string) {
 }
 
 func HasLocationInTitle(title string) bool {
-	if strings.Contains(strings.ToLower(title), "sammanfattning") || strings.Contains(strings.ToLower(title), "övrigt") || strings.Contains(strings.ToLower(title), "obemannat") {
+	//"Rån övrigt" exists and is valid, checks for the invalid "Övrigt" instead, case sensitive
+	if strings.Contains(strings.ToLower(title), "sammanfattning") || strings.Contains(title, "Övrigt") || strings.Contains(strings.ToLower(title), "obemannat") {
 		return false
 	} else {
 		return true
