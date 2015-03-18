@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-var invalidWordsForRoads = []string{
-	"Lv", "Länsväg", "länsväg",
+var invalidWords = []string{
+	"Lv", "Länsväg", "länsväg", "RV", "Rv", "Polisen", "11414", "Polis",
 	"E4", "E6", "E10", "E12", "E14", "E16", "E18", "E22", "E45", "E65",
 }
 var validWordsForPlaces = []string{
@@ -16,7 +16,7 @@ var validWordsForPlaces = []string{
 	"dockan", "parkväg", "byväg", "byaväg", "gård", "stråket", "tvärgata",
 	"gårdar", "parkgata", "idrottsväg", "broväg", "vägen", "stationsgata",
 	"hamngata", "bangårdsgata", "fätåg", "kyrkogata", "hage", "stråket", "ö",
-	"träsk", "flygplats", "industriväg", "trappgata", "kärr", "ringvägen",
+	"träsk", "flygplats", "industriväg", "trappgata", "kärr", "ringvägen", "by",
 }
 
 func FilterDescriptionWords(description string) []string {
@@ -83,78 +83,12 @@ func addWords(description string) []string {
 	return locationWords
 }
 
-// func addWords(description string) []string {
-// 	prevWordAdded := false
-
-// 	//Split string on spaces - descWords = array
-// 	descWords := strings.Split(description, " ")
-
-// 	//Remove spaces from words
-// 	helperfunctions.TrimSpacesFromArray(&descWords)
-
-// 	//The resulting array of location words after filtering
-// 	locationWords := []string{}
-
-// 	//Loop through the array of words
-// 	for i := 1; i < len(descWords); i++ {
-// 		currentWord := descWords[i]
-// 		prevWord := descWords[i-1]
-// 		addWord := false;
-
-// 		if currentWord == "" {
-// 			continue
-// 		}
-
-// 		//Skip iteration if the previous word had a "." in the end
-// 		if strings.HasSuffix(prevWord, ".") {
-// 			prevWordAdded = false
-// 			continue
-// 		}
-
-// 		//Check if previous word was added and current word is in valid road list
-// 		if prevWordAdded {
-// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-
-// 			if helperfunctions.StringInSlice(currentWord, validWordsForPlaces) {
-// 				locationWords = append(locationWords, currentWord)
-// 				prevWordAdded = true
-// 				continue
-// 			} else {
-// 				prevWordAdded = false
-// 			}
-// 		}
-
-// 		//Check if current word starts with uppercase
-// 		if helperfunctions.StartsWithUppercase(currentWord) {
-// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-// 			locationWords = append(locationWords, currentWord)
-// 			prevWordAdded = true
-// 		} else {
-// 			helperfunctions.TrimSuffixesFromWord(&currentWord, ".", ",")
-// 			//Add word if it is a number
-// 			if helperfunctions.WordIsNumber(currentWord) {
-// 				locationWords = append(locationWords, currentWord)
-// 				prevWordAdded = true
-// 			} else {
-// 				prevWordAdded = false
-// 			}
-// 		}
-
-// 		if(addWord)
-
-// 	}
-
-// 	removeInvalidWords(&locationWords)
-
-// 	return locationWords
-// }
-
 func removeInvalidWords(locationWords *[]string) {
 	sliceCopy := *locationWords
 
 	for index, word := range sliceCopy {
 		//Checks if word is invalid ("Länsväg", "E4")
-		if helperfunctions.StringInSlice(word, invalidWordsForRoads) {
+		if helperfunctions.StringInSlice(word, invalidWords) {
 			//Remove word from slice
 			helperfunctions.RemoveIndexFromSlice(index, &sliceCopy)
 		} else if

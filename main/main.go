@@ -65,15 +65,12 @@ var areasArray = []structs.Area{
 TODO:
 	3. Stockholms-undantag
 	//4. Norrbotten: det mesta är fel här! Fler generella regler?
-	5. Lägga till HATEOAS på /, där man får en lista över tillgängliga län
-		- API-länkar - för alla svar på alla resurser
-	//6. Optimera? Antingen:
-		- lägga in parameter ?no-coord=true  +  /getCoord/?Norra+gränges
-		- databas som sparar tidigare ord+koordinater, så att inget jobb/anrop görs utåt
-		- cache i 5 minuter som standard, eller en parameter för att alltid få senaste: ?no-cache=true
-	7. omstrukturera policeevents-structen så att den har objekt/grupper av saker
 	//8. PoliceRSS: ändra namn på policeXMLToStructs och lägg in 	AddEvents och AddArea-metoderna till denna,
 	så de inte behöver ligga dubbelt
+
+Möjliga förbättringar:
+	1. ta bort "född -90" och andra "-<årtal>"
+	2. Kolla om första order innehåller något typ "väg" eller "gatan", för då ska det inte tas bort.
 */
 
 func main() {
