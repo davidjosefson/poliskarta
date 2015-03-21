@@ -16,7 +16,7 @@ bigmapControllers.controller("mainController", ["uiGmapGoogleMapApi", "$scope", 
     vm.areas = {};
     vm.selectedArea = {};
 
-    $http.get("http://localhost:3000/areas/").success(function(data) {
+    $http.get("http://localhost:3000/api/v1/areas/").success(function(data) {
         vm.areas = data;
 
         for (var i = 0; i < vm.areas.areas.length; i++) {
@@ -69,9 +69,16 @@ bigmapControllers.controller("mainController", ["uiGmapGoogleMapApi", "$scope", 
     vm.singleEventCall = function(index, marker) {
         $http.get(marker.eventURI).success(function(data) {
             var event = data;
-                marker.coords.latitude = event.Latitude;
-            marker.coords.longitude = event.Longitude;
-            vm.markerlist.push(marker);
+
+            if (typeof event.location === "undefined") {
+                console.log("Couldn't add marker: " + marker.title + ", no coordinates");
+            } else {
+                marker.coords.latitude = event.location.latitude;
+                marker.coords.longitude = event.location.longitude;
+                vm.markerlist.push(marker);
+
+                console.log("Added marker: " + marker.title);
+            }
         });
     };
 
@@ -81,20 +88,20 @@ bigmapControllers.controller("mainController", ["uiGmapGoogleMapApi", "$scope", 
 
     */
 
-    // $http.get("http://localhost:3000/areas/skane/?limit=5").success(function(data) {
+    // $http.get("http://localhost:3000/api/v1/areas/skane/?limit=5").success(function(data) {
         vm.getEvents = function() {
-            $http.get("http://localhost:3000/areas/" + vm.selectedArea.value + "/?limit=50").success(function(data) {
+            $http.get("http://localhost:3000/api/v1/areas/" + vm.selectedArea.value + "/?limit=50").success(function(data) {
                 var events = data;
-                for (var i = 0; i < events.Events.length; i++) {
+                for (var i = 0; i < events.events.length; i++) {
                     var marker = {
                         id: i + 100,
-                        eventURI: events.Events[i].EventURI,
-                        title: events.Events[i].Title,
-                        description: events.Events[i].DescriptionShort,
+                        eventURI: events.events[i].links[0].href,
+                        title: events.events[i].title,
+                        description: events.events[i].descriptionShort,
                         coords: {
                         },
                         show: false,
-                        onClick: onClickTest(events.Events[i].Title, i + 100)
+                        onClick: onClickTest(events.events[i].Title, i + 100)
                     };
                     marker.onClick = onClickTest(marker.title, marker.id);
                     vm.singleEventCall(i, marker);
