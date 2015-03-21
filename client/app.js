@@ -4,7 +4,7 @@
         $sceDelegateProvider.resourceUrlWhitelist([
    // Allow same origin resource loads.
    'self',
-    'http://192.168.1.78:3000/**',
+    'http://localhost:3000/**',
    // Allow loading from our assets domain. 
    'https://www.google.com/maps/embed/**']);
     });
@@ -29,7 +29,7 @@
         vm.areas = {};
         vm.selectedArea = {};
         vm.response = {};
-        this.polisAPI = "http://192.168.1.78:3000/areas";
+        this.polisAPI = "http://localhost:3000/api/v1/areas";
         this.mapURL = "https://www.google.com/maps/embed/v1/place?key=***REMOVED***&q=s";
 
 
@@ -45,7 +45,7 @@
 
         vm.getAllEvents = function () {
 
-            $http.get(this.polisAPI + vm.selectedArea.url + "?limit=50").success(function (data) {
+            $http.get(vm.selectedArea.links[0].href + "?limit=50").success(function (data) {
                 vm.events = data;
                 vm.singleCallToAllEvents();
                 vm.addEventTypes();
@@ -56,8 +56,8 @@
 
         vm.addEventTypes = function () {
             vm.eventTypes = [];
-            angular.forEach(vm.events.Events, function (val, key) {
-                vm.addEventType(val.EventType);
+            angular.forEach(vm.events.events, function (val, key) {
+                vm.addEventType(val.eventType);
             });
 
         };
@@ -80,19 +80,19 @@
 
 
         vm.singleCallToAllEvents = function () {
-            for (var i = 0; i < vm.events.Events.length; i++) {
+            for (var i = 0; i < vm.events.events.length; i++) {
 
-                vm.singleEventCall(vm.events.Events[i], i);
+                vm.singleEventCall(vm.events.events[i], i);
 
             }
         };
 
         vm.singleEventCall = function (event, index) {
-            $http.get(event.EventURI).success(function (data) {
+            $http.get(event.links[0].href).success(function (data) {
                 var event = {};
                 event = data;
-                vm.events.Events[index] = {};
-                vm.events.Events[index] = event;
+                vm.events.events[index] = {};
+                vm.events.events[index] = event;
             });
         };
 

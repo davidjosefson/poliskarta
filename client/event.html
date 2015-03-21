@@ -4,51 +4,41 @@
             <li><span class="glyphicon glyphicon-alert"></span>
             </li>
             <li>
-                <h3>{{event.EventType}}</h3>
+                <h3>{{event.eventType}}</h3>
             </li>
-            <li ng-repeat="searchword in event.CoordinateSearchWords">
+            <li ng-repeat="searchword in event.location.searchWords">
                 <h3>{{searchword}} </h3>
             </li>
         </ul>
     </div>
 
 </div>
-<div class="row" ng-show="{{event.CoordinateSearchWords}}">
+<div class="row" ng-show="{{event.location}}">
     <!--    <h4 style="text-align: center; margin-top: 5px; padding-bottom: 10px;">{{event.Title}}</h4>-->
     <div class="col-md-6">
         <ul class="list-inline">
             <li><span class="glyphicon glyphicon-time"></span>
             </li>
             <li>
-                <h4>{{event.Time}}</h4>
+                <h4>{{event.time}}</h4>
             </li>
         </ul>
 
-
-        <p><strong>{{event.DescriptionShort}}</strong>
+        <p><strong>{{event.descriptionShort}}</strong>
         </p>
-        <p>{{event.DescriptionLong}}</p>
+        <p>{{event.descriptionLong}}</p>
     </div>
 
     <div class="col-md-6">
-<!--
-        <ul class="list-inline">
-            <li><span class="glyphicon glyphicon-map-marker "></span>
-            </li>
-            <li>
-                <h3><strong ng-repeat="searchword in event.CoordinateSearchWords">{{searchword}} </strong></h3>
-            </li>
-        </ul>
--->
 
-        <img ng-src="{{ctrl.formatUrl(event.Latitude, event.Longitude)}}" style="width:100%">
+        <img ng-src="{{ctrl.formatUrl(event.location.latitude, event.location.longitude)}}" style="width:100%">
         <p>Geocoding Courtesy of <a href="http://www.mapquest.com/" target="_blank">MapQuest</a> <img src="http://developer.mapquest.com/content/osm/mq_logo.png">
         </p>
 
 
-        <div ng-hide="{{ctrl.arraysEqual(event.CoordinateSearchWords, event.LocationWords)}}">
+        <div ng-hide="{{ctrl.arraysEqual(event.location.searchWords, event.location.words)}}">
             <span class="glyphicon glyphicon-info-sign"></span> We searched for:
-            <i ng-repeat="word in event.LocationWords"><strong>{{word}} </strong></i> but found no results.
+            <i ng-repeat="word in event.location.words"><strong>{{word}} </strong></i> but found no results.
         </div>
 
 
@@ -56,21 +46,20 @@
     </div>
 </div>
 
-<div class="row" ng-hide="{{event.CoordinateSearchWords}}">
+<div class="row" ng-hide="{{event.location.words.length > 0}}">
     <div class="col-md-8">
 
         <ul class="list-inline">
-            <li><span class="glyphicon glyphicon-time "></span>
+            <li><span class="glyphicon glyphicon-time"></span>
             </li>
             <li>
-                <h4>{{event.Time}}</h4>
+                <h4>{{event.time}}</h4>
             </li>
         </ul>
 
-
-        <p><strong>{{event.DescriptionShort}}</strong>
+        <p><strong>{{event.descriptionShort}}</strong>
         </p>
-        <p>{{event.DescriptionLong}}</p>
+        <p>{{event.descriptionLong}}</p>
     </div>
 
     <div class="col-md-4">
@@ -79,5 +68,5 @@
     </div>
 </div>
 
-<p></p><a href="{{event.Link}}" target="_blank"><span class="glyphicon glyphicon-link"></span> {{event.Link}}</a>
+<p></p><a href="{{event.links[1].href}}" target="_blank"><span class="glyphicon glyphicon-link"></span> {{event.links[1].href}}</a>
 

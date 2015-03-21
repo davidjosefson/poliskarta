@@ -17,7 +17,7 @@
     <link href="includes/css/styles.css" rel="stylesheet">
     <script type="text/javascript" src="includes/js/angular.js"></script>
     <script type="text/javascript" src="app.js"></script>
-    <script type="text/javascript" src="includes/js/select.js"></script>
+<!--    <script type="text/javascript" src="includes/js/select.js"></script>-->
 
 
 
@@ -40,7 +40,8 @@
                 </div>
                 <div class="col-md-4">
                     <ul class="list-inline center">
-                        <li><h4>Välj län:</h4>
+                        <li>
+                            <h4>Välj län:</h4>
                         </li>
                         <li>
                             <select ng-change="ctrl.getAllEvents()" ng-model="ctrl.selectedArea" ng-options="area as area.name for area in ctrl.areas.areas"></select>
@@ -50,33 +51,28 @@
                 </div>
 
             </div>
+
+            <div class="scroller">
+
+                <ul class="event-type-ul">
+                    <li class="event-types event-type-li" ng-repeat="type in ctrl.eventTypes | orderBy: '-count'" title="{{type.count}}">
+
+                        <div ng-repeat="i in ctrl.getNumber(type.count) track by $index">
+
+                            <div class="bar"></div>
+
+                        </div>
+                        {{type.eventType}}
+                        
+                    </li>
+
+                </ul>
+
+            </div>
         </div>
 
-        <div class="well scroller">
 
-            <ul class="event-type-ul">
-                <li class="event-types event-type-li" ng-repeat="type in ctrl.eventTypes | orderBy: '-count'" title="{{type.count}}">
-
-                    <div ng-repeat="i in ctrl.getNumber(type.count) track by $index">
-
-                        <div class="bar"></div>
-
-                    </div>
-                    {{type.eventType}}
-                    <!--
-                    
-                    <p class="event-type-count">{{type.count}}</p>
-                    <div class="vertical-wrapper">
-                        <strong class="vertical-text">{{type.eventType}} </strong>
-                    </div>
--->
-                </li>
-
-            </ul>
-
-        </div>
-
-        <div class="well" ng-repeat="event in ctrl.events.Events">
+        <div class="event-well" ng-repeat="event in ctrl.events.events">
             <event></event>
         </div>
 

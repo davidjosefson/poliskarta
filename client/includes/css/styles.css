@@ -38,11 +38,10 @@ span.glyphicon-map-marker {
 .main-header {
     min-height: 20px;
     padding: 0px 19px 0px 19px;
-    margin-bottom: 10px;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 0px;
-    box-shadow: none;
+    margin-bottom: 15px;
+	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	-moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
 }
 
 body {
@@ -56,17 +55,30 @@ h3 {
 }
 
 .well {
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
+    background-color: #fff;
+	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	-moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+    margin-bottom: 20px;
+    border: 0px;
     border-radius: 0px;
-    box-shadow: none;
+}
+
+.event-well {
+	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	-moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+    
+    
+    padding: 19px;
     margin-bottom: 20px;
 }
 
 .navbar-default {
-    background-color: #f5f5f5;
-    border: 0px;
-    border-bottom: 1px solid #ccc;
+    background-color: #fff;
+	-webkit-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	-moz-box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+	box-shadow:0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
     border-radius: 0px;
 }
 
@@ -87,12 +99,10 @@ h3 {
 #event-header {
     float: none !important;
     text-align: center !important;
-    padding-bottom: 5px;
-    border-bottom: 2px solid #ccc;
 }
 
 #event-header-row {
-    padding-bottom: 20px;
+    padding-bottom: 10px;
 }
 
 .search-info {
@@ -148,6 +158,7 @@ h3 {
     overflow: scroll !important;
     max-width: 100%;
     padding-bottom: 0px;
+    padding-top: 5px;
 }
 
 .event-type-ul {
@@ -179,7 +190,7 @@ select {
     width: auto;
     padding: 5px;
     border-radius: 0px;
-    background-color: #f5f5f5;
+    background-color: #fff;
     font-size: 15px;
     -webkit-appearance: none;
 }
