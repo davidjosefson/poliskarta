@@ -35,8 +35,14 @@ func CallPoliceScraping(policeEvent *structs.PoliceEvent, wg *sync.WaitGroup) {
 				fmt.Println("Unmarshal error after police scraping (import.io): " + unmarshErr.Error())
 				policeEvent.DescriptionLong = "<N/A>"
 			} else {
-				//Everything was fine, set description
-				policeEvent.DescriptionLong = scrapedEvents.Results[0].Result
+				//We dont know why, but even though everything seems fine here,
+				//policeEvent.DescriptionLong = scrapedEvents.Results[0].Result,
+				//sometimes crashes the server. Below is a safety measure.
+				for _, result := range scrapedEvents.Results {
+					policeEvent.DescriptionLong = result.Result
+					break
+				}
+
 			}
 		}
 	}
