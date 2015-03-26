@@ -11,12 +11,11 @@
         </div>
         
         <div id="map">
-            <!-- <ui-gmap-google-map center='main.map.center' zoom='main.map.zoom' events='main.map.events'> -->
-            <ui-gmap-google-map center='main.map.center' zoom='main.map.zoom' ng-click='main.closeAll()'>
+            <ui-gmap-google-map center='main.map.center' zoom='main.map.zoom' ng-click='main.closeAllMarkerWindows()'>
 
                 <ui-gmap-marker ng-repeat="marker in main.markerlist " coords="marker.coords " idkey="marker.id " click="marker.onClick">
                     <ui-gmap-window show="marker.show ">
-                        <div>
+                        <div id="marker-content">
                             <p>{{marker.title}}</p>
                             <p>{{marker.description}}</p>
                         </div>
@@ -24,12 +23,5 @@
                 </ui-gmap-marker>
             </ui-gmap-google-map>
         </div>
-    <!-- <p>markerlist[1]: {{main.markerlist[1].show}}</p>
-    <container>
-        <p>{{main.markerlist}}</p>
-        <p class="lead ">Här borde det stå hej: {{main.events.Events[1].Title}}</p>
-        <p class="lead ">Alla events: {{main.events}}</p>
-        <p ng-repeat="marker in main.markerlist ">Marker-latitude: {{marker.coords.latitude}}</p>
-    </container> -->
     </div>
 </div>
