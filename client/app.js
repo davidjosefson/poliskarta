@@ -45,7 +45,7 @@
 
         vm.getAllEvents = function () {
 
-            $http.get(vm.selectedArea.links[0].href + "?limit=50").success(function (data) {
+            $http.get(vm.selectedArea.links[0].href + "?limit=500").success(function (data) {
                 vm.events = data;
                 vm.singleCallToAllEvents();
                 vm.addEventTypes();

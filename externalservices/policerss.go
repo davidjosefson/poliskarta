@@ -45,8 +45,8 @@ func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents
 	return policeEvents, err
 }
 
-//Returns a PoliceEvents instead of PoliceEvent because we want to be able to reuse filter functions
-//which only accepts PoliceEvents
+// CallPoliceRSSGetSingle Returns a PoliceEvents instead of PoliceEvent because we want to be able to reuse filter functions
+// which only accepts PoliceEvents
 func CallPoliceRSSGetSingle(area structs.Area, eventID uint32) (structs.PoliceEvents, error) {
 	httpResponse, httpErr := http.Get(area.RssURL)
 
@@ -98,7 +98,7 @@ func limitNumOfPoliceEvents(policeEvents *structs.PoliceEvents, numEvents int) {
 
 	//Limit maximum num of events to 50
 	if numEvents > 50 {
-		numEvents = 50
+		numEvents = 500
 	}
 
 	//Limit number of events to requested amount

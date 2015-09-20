@@ -174,7 +174,7 @@ func singleEvent(res http.ResponseWriter, req *http.Request, params martini.Para
 }
 
 func isLimitParamValid(param string) (int, error) {
-	limit := 10
+	limit := 1000
 	var err error
 	if param != "" {
 		limit, err = strconv.Atoi(param)
@@ -184,7 +184,7 @@ func isLimitParamValid(param string) (int, error) {
 		if limit < 1 {
 			err = errors.New(param + " is not a positive number")
 		} else if limit > 50 {
-			limit = 50
+			limit = 500
 		}
 	}
 
