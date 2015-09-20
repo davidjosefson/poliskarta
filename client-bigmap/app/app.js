@@ -18,13 +18,13 @@ bigmapApp.config(['uiGmapGoogleMapApiProvider', function(uiGmapGoogleMapApiProvi
 bigmapApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
-      when('/:area', {
+      when('/', {
         templateUrl: 'areas.html',
         controller: 'mainController'
       }).
-      when('/phones/:areaID', {
-        templateUrl: 'partials/phone-detail.html',
-        controller: 'PhoneDetailCtrl'
+      when('/:area', {
+        templateUrl: 'areas.html',
+        controller: 'mainController'
       }).
       otherwise({
         redirectTo: '/'

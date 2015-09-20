@@ -35,3 +35,9 @@ html,body{
     bottom:0;
     overflow:hidden;
 }
+
+#marker-content {
+	height: 100%;
+	width: 100%;
+	padding-bottom: 5px;
+}
