@@ -7,3 +7,5 @@ main/gin-bin
 */tmp
 .DS_Store
 .idea
+.jshintrc
+.brackets.json

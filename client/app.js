@@ -33,7 +33,6 @@
     this.polisAPI = "http://localhost:3000/api/v1/areas";
     this.mapURL = "https://www.google.com/maps/embed/v1/place?q=s";
 
-
     vm.getNumber = function(num) {
       return new Array(num);
     };
@@ -46,7 +45,7 @@
 
     vm.getAllEvents = function() {
 
-      $http.get(vm.selectedArea.links[0].href + "?limit=10").success(function(data) {
+      $http.get(vm.selectedArea.links[0].href + "?limit=500").success(function(data) {
         vm.events = data;
         vm.singleCallToAllEvents();
         vm.addEventTypes();
@@ -102,7 +101,6 @@
       this.output = "http://maps.googleapis.com/maps/api/staticmap?center=";
       this.output += lat + "," + lng;
       this.output += "&zoom=12&&scale=2&size=300x200&maptype=roadmap&sensor=false&";
-
       this.output += "&markers=color:red%7ccolor:red%7clabel:c%7c";
       this.output += lat + "," + lng;
 
