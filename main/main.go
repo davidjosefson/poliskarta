@@ -10,9 +10,12 @@ import (
 	"poliskarta/structs"
 	"strconv"
 	"sync"
+	"os"
 
 	"github.com/go-martini/martini"
 )
+
+var mapquestkey string
 
 var areas = structs.AreasStruct{areasArray, []structs.Link{structs.Link{"self", structs.APIURL + "areas"}}}
 
@@ -72,6 +75,11 @@ Mjöliga förbättringar:
 */
 
 func main() {
+	// reads credentials file for mapquest key
+	readCredentialsFile()
+	// fmt.Printf("%v", mapquestkey)
+
+	// martini routing
 	m := martini.Classic()
 
 	m.Get("/api/v1/areas", allAreas)
@@ -79,6 +87,22 @@ func main() {
 	m.Get("/api/v1/areas/:place/:eventid", singleEvent)
 
 	m.Run()
+}
+
+// Reads main/credentials.json to get a Mapquest API key
+func readCredentialsFile() {
+	file, _ := os.Open("credentials.json")
+	decoder := json.NewDecoder(file)
+
+	credentials := structs.Credentials{}
+
+	err := decoder.Decode(&credentials)
+
+	if err != nil {
+	  panic("Couldn't parse the credentials.json-file in main-folder!")
+	}
+
+	mapquestkey = credentials.Mapquestkey
 }
 
 func allAreas(res http.ResponseWriter, req *http.Request) {
@@ -243,7 +267,7 @@ func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte,
 	//If location-words are present in the event try to find coordinates
 	if policeEvents.Events[0].Location != nil {
 		wg.Add(1)
-		go externalservices.CallMapQuest(&policeEvents.Events[0], &wg)
+		go externalservices.CallMapQuest(&policeEvents.Events[0], mapquestkey, &wg)
 	}
 
 	//Wait for all goroutines to finish

@@ -7,3 +7,4 @@ main/gin-bin
 */tmp
 .DS_Store
 .idea
+credentials.json

@@ -79,3 +79,7 @@ type LocationAlternative struct {
 	Latitude  float32 `xml:"displayLatLng>latLng>lat"`
 	Longitude float32 `xml:"displayLatLng>latLng>lng"`
 }
+
+type Credentials struct{
+  Mapquestkey string
+}
