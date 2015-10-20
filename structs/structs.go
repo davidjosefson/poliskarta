@@ -82,4 +82,6 @@ type LocationAlternative struct {
 
 type Credentials struct{
   Mapquestkey string
+	Importiouser string
+	Importiokey string
 }

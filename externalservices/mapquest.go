@@ -12,8 +12,8 @@ import (
 	"sync"
 )
 
-func CallMapQuest(policeEvent *structs.PoliceEvent, mapquestkey string, wg *sync.WaitGroup) {
-	mapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=" + mapquestkey + "&outFormat=xml&location="
+func CallMapQuest(policeEvent *structs.PoliceEvent, credentials structs.Credentials, wg *sync.WaitGroup) {
+	mapURL := "http://open.mapquestapi.com/geocoding/v1/address?key=" + credentials.Mapquestkey + "&outFormat=xml&location="
 	defer wg.Done()
 
 	if len(policeEvent.Location.Words) > 0 {

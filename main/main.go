@@ -15,7 +15,7 @@ import (
 	"github.com/go-martini/martini"
 )
 
-var mapquestkey string
+var credentials = structs.Credentials{}
 
 var areas = structs.AreasStruct{areasArray, []structs.Link{structs.Link{"self", structs.APIURL + "areas"}}}
 
@@ -77,7 +77,6 @@ Mjöliga förbättringar:
 func main() {
 	// reads credentials file for mapquest key
 	readCredentialsFile()
-	// fmt.Printf("%v", mapquestkey)
 
 	// martini routing
 	m := martini.Classic()
@@ -89,20 +88,22 @@ func main() {
 	m.Run()
 }
 
-// Reads main/credentials.json to get a Mapquest API key
+// Reads /etc/poliskartaCredentials.json to get a Mapquest API key
 func readCredentialsFile() {
-	file, _ := os.Open("credentials.json")
-	decoder := json.NewDecoder(file)
-
-	credentials := structs.Credentials{}
-
-	err := decoder.Decode(&credentials)
-
+	file, err := os.Open("/etc/poliskartaCredentials.json")
+	defer file.Close()
 	if err != nil {
-	  panic("Couldn't parse the credentials.json-file in main-folder!")
+		panic("Couldn't read the /etc/poliskartaCredentials.json-file! Error: " + err.Error())
 	}
 
-	mapquestkey = credentials.Mapquestkey
+	decoder := json.NewDecoder(file)
+	// credentials := structs.Credentials{}
+	err = decoder.Decode(&credentials)
+	if err != nil {
+	  panic("Couldn't parse the /etc/poliskartaCredentials.json-file as JSON! Error: " + err.Error())
+	}
+
+	// credentials = credentials.Mapquestkey
 }
 
 func allAreas(res http.ResponseWriter, req *http.Request) {
@@ -259,7 +260,7 @@ func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte,
 	//How many goroutines it should wait on
 	wg.Add(1)
 
-	go externalservices.CallPoliceScraping(&policeEvents.Events[0], &wg)
+	go externalservices.CallPoliceScraping(&policeEvents.Events[0], credentials, &wg)
 
 	//Is needed before calling MapQuest
 	filter.FilterPoliceEvents(&policeEvents)
@@ -267,7 +268,7 @@ func callPoliceRSSGetJSONSingleEvent(area structs.Area, eventID uint32) ([]byte,
 	//If location-words are present in the event try to find coordinates
 	if policeEvents.Events[0].Location != nil {
 		wg.Add(1)
-		go externalservices.CallMapQuest(&policeEvents.Events[0], mapquestkey, &wg)
+		go externalservices.CallMapQuest(&policeEvents.Events[0], credentials, &wg)
 	}
 
 	//Wait for all goroutines to finish
