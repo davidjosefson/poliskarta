@@ -41,5 +41,5 @@ To start **client-big-map**:
 
 .. which will start a web server on *http://localhost:8000*
 
-## License
+# License
 MIT
