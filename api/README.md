@@ -52,7 +52,7 @@ Provides array of all the areas the swedish police publishes events for.
 }
 ```
 
-### /areas/<area>
+### /areas/[area]
 Provides information of the requested area together with the latest events that occured in the area published by the swedish police.
 
 Observe that the events in the response for this endpoint DOES NOT include coordinates, identified words for places or the extended information about the event. To get this information one has to make a GET request for /areas/<area>/<event-ID>.
@@ -115,7 +115,7 @@ A GET request for http://localhost:3000:/api/v1/areas/blekinge will generate the
 }
 ```
 
-### /areas/<area>/<event-id>
+### /areas/[area]/[event-ID]
 Provides detailed information about a certain event.
 
 A GET request for http://localhost:3000/api/v1/areas/blekinge/1416040185 will generate the following:
