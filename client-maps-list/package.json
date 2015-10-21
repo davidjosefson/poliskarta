@@ -1,0 +1,14 @@
+{
+  "name": "client-maps-list",
+  "version": "1.0.0",
+  "description": "Client to show police events in a list with small maps for each event",
+  "scripts": {
+    "start": "http-server -a localhost -p 7000 -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Elias Agetorp",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^0.8.5"
+  }
+}
