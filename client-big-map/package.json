@@ -1,9 +1,9 @@
 {
-  "name": "angular-seed",
+  "name": "client-big-map",
   "private": true,
-  "version": "0.0.0",
-  "description": "A starter project for AngularJS",
-  "repository": "https://github.com/angular/angular-seed",
+  "version": "0.1.0",
+  "description": "A simple Angular app displaying current police events in Sweden on a big map",
+  "repository": "https://github.com/davidjosefson/poliskarta/",
   "license": "MIT",
   "devDependencies": {
     "karma": "~0.10",
