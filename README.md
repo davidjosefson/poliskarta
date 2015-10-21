@@ -2,7 +2,7 @@
 
 Poliskarta is a web API created with [Go](https://golang.org/) to get easy access to coordinates for police events in Sweden.
 
-Event data is fetched and processed from [polisen.se](https://polisen.se/Skane/Aktuellt/Handelser/Handelser-i-hela-landet/?feed=rss) and coordinates are found using [mapquest.se](http://mapquest.com).
+Event data is fetched and processed from RSS feeds at [polisen.se](https://polisen.se/Skane/Aktuellt/Handelser/Handelser-i-hela-landet/?feed=rss) and coordinates are found using [mapquest.com](http://mapquest.com).
 
 Two demo clients were made using AngularJS and Google Maps.
 
@@ -40,3 +40,6 @@ To start **client-big-map**:
     # npm run
 
 .. which will start a web server on *http://localhost:8000*
+
+## License
+MIT
