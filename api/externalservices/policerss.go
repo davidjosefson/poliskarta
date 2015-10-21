@@ -7,7 +7,7 @@ import (
 	"hash/fnv"
 	"io/ioutil"
 	"net/http"
-	"poliskarta/structs"
+	"poliskarta/api/structs"
 )
 
 func CallPoliceRSSGetAll(area structs.Area, numEvents int) (structs.PoliceEvents, error) {

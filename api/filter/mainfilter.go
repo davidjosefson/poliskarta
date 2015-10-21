@@ -1,8 +1,8 @@
 package filter
 
 import (
-	"poliskarta/helperfunctions"
-	"poliskarta/structs"
+	"poliskarta/api/helperfunctions"
+	"poliskarta/api/structs"
 	"strings"
 )
 

@@ -2,7 +2,7 @@ package filter
 
 import (
 	"errors"
-	"poliskarta/helperfunctions"
+	"poliskarta/api/helperfunctions"
 	"strings"
 )
 

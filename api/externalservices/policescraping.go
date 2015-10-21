@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"poliskarta/structs"
+	"poliskarta/api/structs"
 	"sync"
 )
 

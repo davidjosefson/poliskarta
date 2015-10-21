@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"poliskarta/structs"
+	"poliskarta/api/structs"
 	"strings"
 	"sync"
 )
