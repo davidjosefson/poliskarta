@@ -1,7 +1,7 @@
 {
   "name": "client-maps-list",
-  "version": "1.0.0",
-  "description": "Client to show police events in a list with small maps for each event",
+  "version": "0.1.0",
+  "description": "AngularJS client to show police events in a list with small maps for each event",
   "scripts": {
     "start": "http-server -a localhost -p 7000 -c-1",
     "test": "echo \"Error: no test specified\" && exit 1"

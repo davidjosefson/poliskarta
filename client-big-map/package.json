@@ -1,10 +1,10 @@
 {
   "name": "client-big-map",
-  "private": true,
   "version": "0.1.0",
   "description": "A simple Angular app displaying current police events in Sweden on a big map",
   "repository": "https://github.com/davidjosefson/poliskarta/",
   "license": "MIT",
+  "author": "David Josefson",
   "devDependencies": {
     "karma": "~0.10",
     "protractor": "^1.1.1",
