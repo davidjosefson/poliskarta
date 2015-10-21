@@ -1,5 +1,5 @@
 # poliskarta: client-big-map
-An web client displaying current police events in Sweden on a big map. Built using AngularJS and Google Maps.
+A web client displaying current police events in Sweden on a big map. Built using AngularJS and Google Maps.
 
 ## Start the client
 
